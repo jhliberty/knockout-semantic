@@ -43,26 +43,39 @@ module.exports = {
                 // load our module template
                 element.innerHTML = template;
 
-                console.log(context);
-
                 if (ko.isSubscribable(context.show)) {
+                    var showing = false, hiding = false;
                     context.show.subscribe(function(newValue){
-                        console.log(element, "dasdasfa");
-                        if (newValue) {
+
+                        // We don't want these to fire if we're in the process
+                        // of showing or hiding already
+                        if (newValue && !showing) {
                             $(element).modal("show");
                         }
-                        else {
-                            $(element.modal("hide"));
+                        else if (!newValue && !hiding) {
+                            $(element).modal("hide");
                         }
+
+                        showing = false;
+                        hiding = false;
                     });
+
+
+                    // we need our own onHide and onShow methods to make sure
+                    // our observable stays in check
+                    context.onShow = function(){
+                        showing = true;
+                        context.show(true);
+                    };
+                    context.onHide = function(){
+                        hiding = true;
+                        context.show(false);
+                    };
                 }
 
-                // we need our own onHide and onShow methods to make sure
-                // our observable stays in check, but we don't want to override
-                // callbacks the user sets
-
-
                 ko.applyBindingsToDescendants(context, element);
+
+                $(element).modal(context);
             };
 
             if (isObservable) {
