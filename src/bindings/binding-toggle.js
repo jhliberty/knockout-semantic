@@ -1,8 +1,4 @@
 module.exports = {
-    /**
-     * @param {HTMLElement} element
-     * @param valueAccessor
-     */
     init: function(element, valueAccessor){
         var $el = $(element);
 

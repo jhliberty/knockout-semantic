@@ -74,6 +74,52 @@
         </dl>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="container">
+    <div class="ui segment">
+        <h3>Modal:</h3>
+
+        <div class="ui two column grid">
+            <div class="column">
+
+                <div class="ui modal"
+                     data-bind="modal: {
+                     title: 'My Modal',
+                     content: 'I am a <strong>MODAL!!!</strong>',
+                     show: shouldTheModalBeVisible
+                }"></div>
+
+
+                <div class="ui button toggle" data-bind="toggle: shouldTheModalBeVisible">Show the Modal</div>
+            </div>
+            <div class="column codeTarget">
+            </div>
+        </div>
+
+        <dl class="parameters">
+            <dt>title</dt>
+            <dd class="types">String (optional)</dd>
+            <dd>title for the modal</dd>
+
+            <dt>content</dt>
+            <dd class="types">String (optional)</dd>
+            <dd>The HTML content of the modal.  <code>data-bind</code> works,
+                but you must use $root or $parent to access your ViewModel</dd>
+
+            <dt>show</dt>
+            <dd class="types">Boolean</dd>
+            <dd>The model's visiblity.  Change an observable to change the value.  This is also updated if the
+                modal is shown or closed elsewhere in the code.</dd>
+
+            <dt>buttons</dt>
+            <dd class="types">Array[String]</dd>
+            <dd>The names of buttons at the bottom of the modal. (<em>TODO: make this useful</em>)</dd>
+
+
+        </dl>
+    </div>
+</div>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.js"></script>
 <script type="text/javascript" src="http://jsbeautifier.org/js/lib/beautify-html.js"></script>
 <script type="text/javascript" src="src/docs/docs.js"></script>
@@ -81,9 +127,7 @@
     //var semantic = require("semantic");
     ko.applyBindings({
         toggle: ko.observable(false),
-        steps: [
-            /*new semantic.Step*/
-        ]
+        shouldTheModalBeVisible: ko.observable(false)
     });
 
     prettyPrint();
