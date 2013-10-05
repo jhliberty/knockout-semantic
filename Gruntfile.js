@@ -5,10 +5,10 @@ module.exports = function(grunt) {
         watchify: {
             basic: {
                 src: './src/**/*.js',
-                dest: 'build/sui-ko.js',
+                dest: 'build/knockout-semantic.js',
                 options: {
                     callback: function(b) {
-                        b.require('./src/sui-ko.js', {
+                        b.require('./src/main.js', {
                             /*expose: 'semantic'*/
                         });
                         b.transform('brfs');

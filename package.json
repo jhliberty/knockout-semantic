@@ -1,5 +1,5 @@
 {
-  "name": "sui-ko",
+  "name": "knockout-semantic",
   "version": "0.1.0",
   "devDependencies": {
     "grunt": "~0.4.x",
