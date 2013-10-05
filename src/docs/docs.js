@@ -16,6 +16,5 @@ $('.codeTarget').each(function () {
     }).trim();
 
     $pre.html(code);
-    console.log(code);
     $(this).append($pre);
 });
