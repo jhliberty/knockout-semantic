@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         watchify: {
             basic: {
-                src: './src/*.js',
+                src: './src/**/*.js',
                 dest: 'build/sui-ko.js',
                 options: {
                     callback: function(b) {
@@ -12,6 +12,7 @@ module.exports = function(grunt) {
                             /*expose: 'semantic'*/
                         });
                         b.transform('brfs');
+                        console.warn("Built.");
                         return b;
                     },
                     keepalive: true
