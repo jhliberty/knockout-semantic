@@ -1,0 +1,15 @@
+<i class="close icon"></i>
+<div class="header" data-bind="text: title">
+
+</div>
+<div class="content" data-bind="html: content">
+    <div class="left">
+        Content can appear on left
+    </div>
+    <div class="right">
+        Content can appear on right
+    </div>
+</div>
+<div class="actions" data-bind="foreach: buttons">
+    <div class="ui button" data-bind="text: $data"></div>
+</div>
