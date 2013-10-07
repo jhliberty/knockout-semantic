@@ -5,10 +5,13 @@ module.exports = {
         // Toggle the observable on click
         $(element).click(function(){
             var observable = valueAccessor();
+
+            // Update the observable (true or false)
+            // this also effects the class change
             observable(!ko.unwrap(observable));
         });
 
-        valueAccessor().subscribe(function(){
+        var updateClass = function(){
             // if we set it to true, add the "active" class
             if (!!ko.unwrap(valueAccessor())) {
                 $el.addClass('active');
@@ -18,6 +21,11 @@ module.exports = {
             else {
                 $el.removeClass('active');
             }
-        });
+        };
+
+        valueAccessor().subscribe(updateClass);
+
+        // invoke immediately to get the initial class correct
+        updateClass();
     }
 };
