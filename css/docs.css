@@ -47,3 +47,27 @@ pre.prettyprint {
     content: '';
     display: block;
 }
+
+hr {
+    border: none;
+    height: 3px;
+    box-shadow: inset 0 0 1px #000;
+    margin: 2.5em 10em;
+}
+
+.container p {
+    margin-bottom: 1em;
+    font-size: 1.2em;
+    line-height: 1.2em;
+}
+
+code {
+    color: darkred;
+    font-family: AndaleMono, "Andale Mono", consolas, monospace;
+    display: inline-block;
+    height: 1em;
+    padding-left: .5em;
+    padding-right: .5em;
+    box-shadow: inset 0 0 .5em #999;
+    border-radius: .3em;
+}

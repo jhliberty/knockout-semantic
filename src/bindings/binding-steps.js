@@ -38,8 +38,6 @@ var binding = {
                 }
             }
 
-            a = data;
-
             return {
                 'foreach': data,
                 'as': 'step',

@@ -5,5 +5,10 @@ bindingHandlers["steps"] = require("./bindings/binding-steps");
 bindingHandlers["modal"] = require("./bindings/binding-modal");
 
 module.exports = {
-    foo: 'bar'
+    Step: require("./classes/step.js"),
+    Action: require("./classes/action.js")
 };
+
+if (typeof window !== "undefined") {
+    window["semantic"] = module.exports;
+}
