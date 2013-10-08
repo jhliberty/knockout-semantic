@@ -31,6 +31,14 @@ module.exports = {
             // this function handles the initial value, and the case of the object
             // being replaced
             var initializeModal = function(settings){
+
+                // if we have our own buttons config, we don't want to
+                // have Semantic-UI hide when a button is pressed
+                if (settings.buttons) {
+                    // Some nonexistent element
+                    settings.selector = "#fake" + new Date().getTime();
+                }
+
                 var context = ko.utils.extend({
                     title: "",
                     content: "",
@@ -41,8 +49,14 @@ module.exports = {
                     show: false
                 }, settings);
 
+                // Patch the buttons so they get the element as this
+                ko.utils.arrayForEach(context.buttons, function(action){
+                    action.go = action.callback.bind(element);
+                });
+
+
                 // if we've already applied bindings, we need to clean up first
-                //ko.cleanNode(element);
+                ko.cleanNode(element);
 
                 // load our module template
                 element.innerHTML = template;

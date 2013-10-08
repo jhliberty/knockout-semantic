@@ -11,18 +11,13 @@
     <meta name="keywords" content="html5, ui, library, framework, javascript, knockout"/>
 
 
-    <link rel="stylesheet" href="http://semantic-ui.com/build/packaged/css/semantic.css"/>
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="lib/semantic.css"/>
+<!--    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+          rel='stylesheet' type='text/css'>-->
 
 
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.css"/>
+    <link rel="stylesheet" href="lib/prettify.css"/>
     <link rel="stylesheet" href="css/docs.css"/>
-
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script type="text/javascript" src="//semantic-ui.com/build/packaged/javascript/semantic.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/knockout/2.3.0/knockout-min.js"></script>
-    <script type="text/javascript" src="build/knockout-semantic.js"></script>
 </head>
 <body>
 
@@ -36,7 +31,11 @@
 
         <div class="ui two column grid">
             <div class="column">
-                <div class="ui button toggle" data-bind="toggle: toggle, text: toggle">Toggle Me</div>
+                <div class="ui button toggle sample" data-bind="toggle: toggle, text: toggle">Toggle Me</div>
+
+                <hr>
+
+                <p>Like all of these modules, you can use a static value or an observable.</p>
             </div>
             <div class="column codeTarget"></div>
         </div>
@@ -56,8 +55,18 @@
 
         <div class="ui two column grid">
             <div class="column">
-                <div class="ui steps"
+                <div class="ui steps sample"
                      data-bind="steps: {data: ['One', 'Two', 'Three'], active: 'Two'}"></div>
+
+
+            <hr>
+
+            <p>
+                <code>active</code> could be "Two", 1, or an observable holding either.
+            </p>
+            <p>We have a template for this, but you're welcome to use a foreach binding to get
+            a little more control.</p>
+
             </div>
             <div class="column codeTarget">
             </div>
@@ -83,11 +92,15 @@
         <div class="ui two column grid">
             <div class="column">
 
-                <div class="ui modal"
+                <div class="ui modal sample"
                      data-bind="modal: {
                      title: 'My Modal',
                      content: 'I am a <strong>MODAL!!!</strong>',
-                     show: shouldTheModalBeVisible
+                     show: shouldTheModalBeVisible,
+                     buttons: [
+                        cancelButton,
+                        okButton
+                     ]
                 }"></div>
 
 
@@ -113,24 +126,69 @@
                 modal is shown or closed elsewhere in the code.</dd>
 
             <dt>buttons</dt>
-            <dd class="types">Array[String]</dd>
-            <dd>The names of buttons at the bottom of the modal. (<em>TODO: make this useful</em>)</dd>
+            <dd class="types">Array[Action]</dd>
+            <dd>The names and behavisrcors for the buttons at the bottom of the modal.</dd>
 
 
         </dl>
     </div>
 </div>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.js"></script>
-<script type="text/javascript" src="http://jsbeautifier.org/js/lib/beautify-html.js"></script>
-<script type="text/javascript" src="src/docs/docs.js"></script>
+
+<script type="text/javascript" src="lib/jquery.min.js"></script>
+<script type="text/javascript" src="lib/semantic.js"></script>
+<script type="text/javascript" src="lib/knockout-min.js"></script>
+<script type="text/javascript" src="build/knockout-semantic.js"></script>
+<script type="text/javascript" src="lib/prettify.js"></script>
+<script type="text/javascript" src="lib/beautify-html.js"></script>
+<!--<script type="text/javascript" src="src/docs/docs.js"></script>-->
 <script type="text/javascript">
-    //var semantic = require("semantic");
-    ko.applyBindings({
-        toggle: ko.observable(false),
-        shouldTheModalBeVisible: ko.observable(false)
+
+    makeTheCodeAllPretty();
+
+    ko.applyBindings(k = {
+        toggle: ko.observable(true),
+        shouldTheModalBeVisible: ko.observable(false),
+        okButton: new semantic.Action("Sure", function (data, e) {
+            
+        }),
+        cancelButton: new semantic.Action("Cancel!", function () {
+            
+        })
     });
 
-    prettyPrint();
+    function makeTheCodeAllPretty(){
+        // Some formatting for the code snippets
+        $('.codeTarget').each(function () {
+            var $els = $(this).prev().find(".sample").clone().removeClass('sample');
+            var code = $("<p>").append($els).html();
+            console.log(code);
+            var $pre = $("<pre class='prettyprint lang-html'>");
+
+            code = html_beautify(code, {
+
+
+            });
+
+            code = code.replace(/[<"]|data-bind|>(?=\s*\w)/g,function (m) {
+                switch ( m ) {
+                    case "<":
+                        return "\n&lt;";
+                    case ">":
+                        return "&gt;\n  ";
+                    case '"':
+                        return "&quot;";
+                    case "data-bind":
+                        return "\n     data-bind";
+                }
+            }).trim();
+
+            $pre.html(code);
+            $(this).append($pre);
+        });
+
+        prettyPrint();
+    }
+
 </script>
 
 </body>
