@@ -6,7 +6,8 @@
 
 },{}],2:[function(require,module,exports){
 var fs = require('fs');
-var template = "<i class=\"close icon\"></i>\n<div class=\"header\" data-bind=\"text: title\">\n\n</div>\n<div class=\"content\" data-bind=\"html: content\">\n    <div class=\"left\">\n        Content can appear on left\n    </div>\n    <div class=\"right\">\n        Content can appear on right\n    </div>\n</div>\n<div class=\"actions\" data-bind=\"foreach: buttons\">\n    <div class=\"ui button\" data-bind=\"text: $data\"></div>\n</div>";
+var template = "<i class=\"close icon\"></i>\n<div class=\"header\" data-bind=\"text: title\">\n\n</div>\n<div class=\"content\" data-bind=\"html: content\">\n    <div class=\"left\">\n        Content can appear on left\n    </div>\n    <div class=\"right\">\n        Content can appear on right\n    </div>\n</div>\n<div class=\"actions\" data-bind=\"foreach: buttons\">\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\n</div>";
+var Action = require("../classes/action.js");
 
 
 module.exports = {
@@ -37,39 +38,69 @@ module.exports = {
             // this function handles the initial value, and the case of the object
             // being replaced
             var initializeModal = function(settings){
+
+                // if we have our own buttons config, we don't want to
+                // have Semantic-UI hide when a button is pressed
+                if (settings.buttons) {
+                    // Some nonexistent element
+                    settings.selector = "#fake" + new Date().getTime();
+                }
+
                 var context = ko.utils.extend({
                     title: "",
                     content: "",
-                    buttons: ["Cancel", "OK"],
+                    buttons: [
+                        new Action("Cancel", function(){}),
+                        new Action("Okay", function(){})
+                    ],
                     show: false
                 }, settings);
 
+                // Patch the buttons so they get the element as this
+                ko.utils.arrayForEach(context.buttons, function(action){
+                    action.go = action.callback.bind(element);
+                });
+
+
                 // if we've already applied bindings, we need to clean up first
-                //ko.cleanNode(element);
+                ko.cleanNode(element);
 
                 // load our module template
                 element.innerHTML = template;
 
-                console.log(context);
-
                 if (ko.isSubscribable(context.show)) {
+                    var showing = false, hiding = false;
                     context.show.subscribe(function(newValue){
-                        console.log(element, "dasdasfa");
-                        if (newValue) {
+
+                        // We don't want these to fire if we're in the process
+                        // of showing or hiding already
+                        if (newValue && !showing) {
                             $(element).modal("show");
                         }
-                        else {
-                            $(element.modal("hide"));
+                        else if (!newValue && !hiding) {
+                            $(element).modal("hide");
                         }
+
+                        showing = false;
+                        hiding = false;
                     });
+
+
+                    // we need our own onHide and onShow methods to make sure
+                    // our observable stays in check
+                    context.onShow = function(){
+                        showing = true;
+                        context.show(true);
+                    };
+                    context.onHide = function(){
+                        hiding = true;
+                        context.show(false);
+                    };
                 }
 
-                // we need our own onHide and onShow methods to make sure
-                // our observable stays in check, but we don't want to override
-                // callbacks the user sets
-
-
                 ko.applyBindingsToDescendants(context, element);
+
+                $(element).modal(context);
             };
 
             if (isObservable) {
@@ -90,7 +121,7 @@ module.exports = {
     }
 };
 
-},{"fs":1}],3:[function(require,module,exports){
+},{"../classes/action.js":5,"fs":1}],3:[function(require,module,exports){
 var fs = require('fs');
 var template = "<div class=\"step\" data-bind=\"text: step.text,\n            css: {active: step.active()}\"></div>";
 
@@ -131,8 +162,6 @@ var binding = {
                 }
             }
 
-            a = data;
-
             return {
                 'foreach': data,
                 'as': 'step',
@@ -155,7 +184,7 @@ var binding = {
 };
 
 module.exports = binding;
-},{"../classes/step.js":5,"../utils.js":8,"fs":1}],4:[function(require,module,exports){
+},{"../classes/step.js":6,"../utils.js":8,"fs":1}],4:[function(require,module,exports){
 module.exports = {
     init: function(element, valueAccessor){
         var $el = $(element);
@@ -163,10 +192,13 @@ module.exports = {
         // Toggle the observable on click
         $(element).click(function(){
             var observable = valueAccessor();
+
+            // Update the observable (true or false)
+            // this also effects the class change
             observable(!ko.unwrap(observable));
         });
 
-        valueAccessor().subscribe(function(){
+        var updateClass = function(){
             // if we set it to true, add the "active" class
             if (!!ko.unwrap(valueAccessor())) {
                 $el.addClass('active');
@@ -176,11 +208,35 @@ module.exports = {
             else {
                 $el.removeClass('active');
             }
-        });
+        };
+
+        valueAccessor().subscribe(updateClass);
+
+        // invoke immediately to get the initial class correct
+        updateClass();
     }
 };
 
 },{}],5:[function(require,module,exports){
+/**
+ * An action.  Call action.do to do the action.
+ * @param {String} name
+ * @param {Function} callback
+ * @constructor
+ */
+function Action(name, callback) {
+    var self = this;
+
+    self.name = name;
+    self.callback = callback || $.noop;
+
+    self.go = function(){
+        self.callback.apply(self, arguments);
+    };
+}
+
+module.exports = Action;
+},{}],6:[function(require,module,exports){
 function Step(text, activeTest){
     this.text = ko.observable(text);
 
@@ -193,39 +249,22 @@ function Step(text, activeTest){
 }
 
 module.exports = Step;
-},{}],6:[function(require,module,exports){
-$('.codeTarget').each(function () {
-    var code = $(this).prev().html();
-    var $pre = $("<pre class='prettyprint'>");
-
-    code = html_beautify(code, {
-        /*wrap_line_length: 78*/
-    });
-
-    code = code.replace(/[<"]|data-bind|>(?=\s*\w)/g, function(m){
-        switch (m) {
-            case "<": return "\n&lt;";
-            case ">": return "&gt;\n  ";
-            case '"': return "&quot;";
-            case "data-bind": return "\n     data-bind";
-        }
-    }).trim();
-
-    $pre.html(code);
-    $(this).append($pre);
-});
-
 },{}],7:[function(require,module,exports){
 // Load up our binding handlers
 var bindingHandlers = window.ko.bindingHandlers;
-bindingHandlers["toggle"] = require("./bindings/binding-toggle");
-bindingHandlers["steps"] = require("./bindings/binding-steps");
-bindingHandlers["modal"] = require("./bindings/binding-modal");
+bindingHandlers["toggle"] = require("./bindings/toggle");
+bindingHandlers["steps"] = require("./bindings/steps");
+bindingHandlers["modal"] = require("./bindings/modal");
 
 module.exports = {
-    foo: 'bar'
+    Step: require("./classes/step.js"),
+    Action: require("./classes/action.js")
 };
-},{"./bindings/binding-modal":2,"./bindings/binding-steps":3,"./bindings/binding-toggle":4}],8:[function(require,module,exports){
+
+if (typeof window !== "undefined") {
+    window["semantic"] = module.exports;
+}
+},{"./bindings/modal":2,"./bindings/steps":3,"./bindings/toggle":4,"./classes/action.js":5,"./classes/step.js":6}],8:[function(require,module,exports){
 module.exports = {
     byIndexOrName: function(index, array) {
         if (!isNaN(parseInt(index))) {
@@ -237,5 +276,5 @@ module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,6,8,5,7])
+},{}]},{},[2,3,4,5,6,7,8])
 ;
