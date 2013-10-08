@@ -1,5 +1,6 @@
 var fs = require('fs');
 var template = fs.readFileSync(__dirname + "/templates/modal.html");
+var Action = require("../classes/action.js");
 
 
 module.exports = {
@@ -33,7 +34,10 @@ module.exports = {
                 var context = ko.utils.extend({
                     title: "",
                     content: "",
-                    buttons: ["Cancel", "OK"],
+                    buttons: [
+                        new Action("Cancel", function(){}),
+                        new Action("Okay", function(){})
+                    ],
                     show: false
                 }, settings);
 

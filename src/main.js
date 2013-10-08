@@ -1,8 +1,8 @@
 // Load up our binding handlers
 var bindingHandlers = window.ko.bindingHandlers;
-bindingHandlers["toggle"] = require("./bindings/binding-toggle");
-bindingHandlers["steps"] = require("./bindings/binding-steps");
-bindingHandlers["modal"] = require("./bindings/binding-modal");
+bindingHandlers["toggle"] = require("./bindings/toggle");
+bindingHandlers["steps"] = require("./bindings/steps");
+bindingHandlers["modal"] = require("./bindings/modal");
 
 module.exports = {
     Step: require("./classes/step.js"),
