@@ -98,12 +98,14 @@ module.exports = {
                     };
                 }
 
-                ko.applyBindingsToDescendants(context, element);
+                var innerBindingContext = bindingContext.createChildContext(context);
+                ko.applyBindingsToDescendants(innerBindingContext, element);
 
                 $(element).modal(context);
             };
 
             if (isObservable) {
+                initializeModal(realValue);
                 value.subscribe(initializeModal);
             }
             else {
