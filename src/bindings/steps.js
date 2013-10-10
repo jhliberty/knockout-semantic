@@ -1,62 +1,53 @@
 var fs = require('fs');
 var template = fs.readFileSync(__dirname + "/templates/steps.html");
 
+var utils = require("../utils");
+
 var Step = require("../classes/step.js");
 var util = require("../utils.js");
 
 var binding = {
-    makeTemplateValueAccessor: function(element, valueAccessor) {
-        return function() {
-            var modelValue = valueAccessor(),
-                unwrappedValue = ko.utils.peekObservable(modelValue);
+    'init': function stepsBingindInit(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var obj = valueAccessor(), $el = $(element);
 
-            // It's just an array, so we'll assume it's syntax sugar for foreach
-            if ((!unwrappedValue) || typeof unwrappedValue.length == "number")
-                return { 'foreach': modelValue, 'templateEngine': ko.nativeTemplateEngine.instance };
+        // if we've already applied bindings, we need to clean up first
+        ko.cleanNode(element);
 
-            ko.utils.unwrapObservable(modelValue);
+        // load our module template
+        element.innerHTML = template;
 
-            // Inject our template
-            element.innerHTML = template;
+        var innerBindingContext = bindingContext.createChildContext(obj);
 
-            var data = unwrappedValue['data'], activeTest, original = data.slice(0);
+        // not sure if this is even possible with Knockout-ES5
+        // but I suppose they could still use ko.observable(thingImPassingToModalParam)
+        ko.applyBindingsToDescendants(innerBindingContext, element);
 
-            if (unwrappedValue.active != null) {
-                activeTest = function(index){
-                    // The active observable could hold the 0-based index, or the string
-                    // matching the tab text
-                    var foundIndex = util.byIndexOrName(ko.unwrap(unwrappedValue.active), original);
-                    return index === foundIndex && foundIndex !== -1;
-                };
-            }
-
-            for (var i=0; i<data.length; i++) {
-                if (typeof data[i] === "string") {
-                    data[i] = new Step(data[i], typeof activeTest === "function"
-                                                ? activeTest.bind(null, i)
-                                                : activeTest);
-                }
-            }
-
-            return {
-                'foreach': data,
-                'as': 'step',
-                'includeDestroyed': unwrappedValue['includeDestroyed'],
-                'afterAdd': unwrappedValue['afterAdd'],
-                'beforeRemove': unwrappedValue['beforeRemove'],
-                'afterRender': unwrappedValue['afterRender'],
-                'beforeMove': unwrappedValue['beforeMove'],
-                'afterMove': unwrappedValue['afterMove'],
-                'templateEngine': ko.nativeTemplateEngine.instance
-            };
-        };
+        return { controlsDescendantBindings: true };
     },
-    'init': function(element, valueAccessor) {
-        return ko.bindingHandlers['template']['init'](element, binding.makeTemplateValueAccessor(element, valueAccessor));
-    },
-    'update': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-        return ko.bindingHandlers['template']['update'](element, binding.makeTemplateValueAccessor(element, valueAccessor), allBindings, viewModel, bindingContext);
+    makeRealNode: function (node, attributes) {
+        var steps, data = node.getAttribute("data");
+
+        if ( !data ) {
+            return {required: "data"};
+        }
+        console.log(data, utils.hashToBindingString({ toggle: data}));
+
+
+        steps = document.createElement("div");
+
+        steps.className = "ui steps";
+
+        steps.setAttribute("data-bind", utils.hashToBindingString({
+            steps: data
+        }));
+
+        if ( node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
+            steps.appendChild(node.childNodes[0]);
+        }
+
+        return steps;
     }
+
 };
 
 module.exports = binding;

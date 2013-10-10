@@ -12,14 +12,28 @@
 
 
     <link rel="stylesheet" href="lib/semantic.css"/>
-<!--    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-          rel='stylesheet' type='text/css'>-->
+    <!--    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+              rel='stylesheet' type='text/css'>-->
 
 
     <link rel="stylesheet" href="lib/prettify.css"/>
     <link rel="stylesheet" href="css/docs.css"/>
+
+    <script type="text/javascript" src="lib/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/semantic.js"></script>
+    <script type="text/javascript" src="lib/knockout-min.js"></script>
+    <script type="text/javascript" src="lib/knockout-es5.min.js"></script>
+    <script type="text/javascript" src="build/knockout-semantic.js"></script>
+    <script type="text/javascript" src="lib/prettify.js"></script>
+    <script type="text/javascript" src="lib/beautify-html.js"></script>
 </head>
 <body>
+
+<script>
+    // we're doing this up here because we're hackers who
+    // like to make script tags visible 'n stuff
+    var viewModel = {};
+</script>
 
 <!-- TOGGLE -->
 <div class="container">
@@ -29,13 +43,37 @@
     <div class="ui segment">
         <h3>A simple toggle:</h3>
 
+        <script class="prettyprint">
+            viewModel.toggle = {
+                on: true,
+                text: function () {
+                    if ( viewModel.toggle.on ) {
+                        return ":)"
+                    } else {
+                        return ":("
+                    }
+                }
+            };
+
+            ko.track(viewModel.toggle, ["on"]);
+        </script>
+
+        <p>Notice that there are two options for defining elements.</p>
+
+        <p>You can use the usual data-bind syntax, or use the custom element
+            syntax. Certain elements support certain bindings, but the data-binding
+            for <code>&lt;sui-something /&gt;</code> will always correspond to the
+            <code>something</code> binding.</p>
+
+        <p>Toggle supports the text binding currently.</p>
+
+
         <div class="ui two column grid">
             <div class="column">
-                <div class="ui button toggle sample" data-bind="toggle: toggle, text: toggle">Toggle Me</div>
-
-                <hr>
-
-                <p>Like all of these modules, you can use a static value or an observable.</p>
+                <div class="sample">
+                    <div class="ui button toggle" data-bind="toggle: toggle, text: toggle.text()">Toggle Me</div>
+                    <sui-toggle data="toggle" text="toggle.text()">I'm fancy!</sui-toggle>
+                </div>
             </div>
             <div class="column codeTarget"></div>
         </div>
@@ -53,19 +91,47 @@
     <div class="ui segment">
         <h3>Steps:</h3>
 
+
+        <script class="prettyprint">
+            viewModel.steps = {
+                data: [
+                    'One', 'Two', 'Three'
+                ],
+                active: 'Two'
+            };
+
+            viewModel.steps2 = {
+                data: [
+                    "Flour", "Eggs", "Mix"
+                ],
+                active: 2,
+                disabled: true
+            };
+
+            ko.track(viewModel.steps, ["active"]);
+            ko.track(viewModel.steps2, ["data"]);
+        </script>
+
         <div class="ui two column grid">
             <div class="column">
-                <div class="ui steps sample"
-                     data-bind="steps: {data: ['One', 'Two', 'Three'], active: 'Two'}"></div>
+                <div class="sample">
+                    <div class="ui steps"
+                         data-bind="steps: steps"></div>
+                </div>
+                <div class="sample">
+                    <sui-steps data="steps2" />
+                </div>
 
+                <hr>
 
-            <hr>
+                <p>
+                    <strong>active</strong> could be the string "Two", the index 1, or any other value/index.
+                    When you set what <strong>active</strong> is, we'll honor the type when the user changes it.
+                    Set "disabled: true" to prevent the user from changing it.
+                </p>
 
-            <p>
-                <code>active</code> could be "Two", 1, or an observable holding either.
-            </p>
-            <p>We have a template for this, but you're welcome to use a foreach binding to get
-            a little more control.</p>
+                <p>We have a template for this, but you're welcome to use a foreach binding to get
+                    a little more control.</p>
 
             </div>
             <div class="column codeTarget">
@@ -79,7 +145,11 @@
 
             <dt>active</dt>
             <dd class="types">Number | String</dd>
-            <dd>The index or value of the active step, e.g. 1 or "Two"</dt>
+            <dd>The index or value of the active step, e.g. 1 or "Two"</dd>
+
+            <dt>disabled</dt>
+            <dd class="types">Boolean</dd>
+            <dd>true if the user shouldn't be able to change the step by clicking</dd>
         </dl>
     </div>
 </div>
@@ -89,19 +159,46 @@
     <div class="ui segment">
         <h3>Modal:</h3>
 
+        <div class="ui segment">
+        <div class="red ui header">Doesn't currently work</div>
+            <p>please take a look and see if you can figure it out</p>
+        </div>
+
         <div class="ui two column grid">
+
             <div class="column">
 
+                <script class="prettyprint">
+                    viewModel.shouldTheModalBeVisible = {};
+
+                    viewModel.myModal = {
+                        title: 'My Modal',
+                        content: 'I am a <strong>MODAL!!!</strong>',
+                        show: false,
+                        buttons: [
+                            new semantic.Action("Close me with jQuery", function () {
+                                $(this).modal("hide dimmer");
+                            }), new semantic.Action("Close me by setting show to false", function () {
+                                viewModel.myModal.show = false;
+                            })
+                        ]
+                    };
+                    ko.defineProperty(viewModel.shouldTheModalBeVisible, "on", {
+                        get: function () {
+                            console.log("get", viewModel.myModal.show)
+                            return viewModel.myModal.show;
+                        },
+                        set: function(val) {
+                            console.log("set", val)
+                            viewModel.myModal.show = val;
+                        }
+                    });
+                    ko.track(viewModel.myModal);
+
+                </script>
+
                 <div class="ui modal sample"
-                     data-bind="modal: {
-                     title: 'My Modal',
-                     content: 'I am a <strong>MODAL!!!</strong>',
-                     show: shouldTheModalBeVisible,
-                     buttons: [
-                        cancelButton,
-                        okButton
-                     ]
-                }"></div>
+                     data-bind="modal: myModal"></div>
 
 
                 <div class="ui button toggle" data-bind="toggle: shouldTheModalBeVisible">Show the Modal</div>
@@ -117,13 +214,15 @@
 
             <dt>content</dt>
             <dd class="types">String (optional)</dd>
-            <dd>The HTML content of the modal.  <strong>data-bind</strong> works,
-                but you must use $root or $parent to access your ViewModel</dd>
+            <dd>The HTML content of the modal. <strong>data-bind</strong> works,
+                but you must use $root or $parent to access your ViewModel
+            </dd>
 
             <dt>show</dt>
             <dd class="types">Boolean</dd>
-            <dd>The model's visiblity.  Change an observable to change the value.  This is also updated if the
-                modal is shown or closed elsewhere in the code.</dd>
+            <dd>The model's visiblity. Change an observable to change the value. This is also updated if the
+                modal is shown or closed elsewhere in the code.
+            </dd>
 
             <dt>buttons</dt>
             <dd class="types">Array[Action]</dd>
@@ -134,29 +233,15 @@
     </div>
 </div>
 
-<script type="text/javascript" src="lib/jquery.min.js"></script>
-<script type="text/javascript" src="lib/semantic.js"></script>
-<script type="text/javascript" src="lib/knockout-min.js"></script>
-<script type="text/javascript" src="build/knockout-semantic.js"></script>
-<script type="text/javascript" src="lib/prettify.js"></script>
-<script type="text/javascript" src="lib/beautify-html.js"></script>
 <!--<script type="text/javascript" src="src/docs/docs.js"></script>-->
 <script type="text/javascript">
 
     makeTheCodeAllPretty();
 
-    ko.applyBindings(k = {
-        toggle: ko.observable(true),
-        shouldTheModalBeVisible: ko.observable(false),
-        okButton: new semantic.Action("Sure", function (data, e) {
-            
-        }),
-        cancelButton: new semantic.Action("Cancel!", function () {
-            
-        })
-    });
+    ko.track(viewModel, ["toggle"]);
+    ko.applyBindings(viewModel);
 
-    function makeTheCodeAllPretty(){
+    function makeTheCodeAllPretty() {
         // Some formatting for the code snippets
         $('.codeTarget').each(function () {
             var $els = $(this).prev().find(".sample").clone().removeClass('sample');
@@ -184,6 +269,29 @@
 
             $pre.html(code);
             $(this).append($pre);
+        });
+
+        $('script.prettyprint').each(function(){
+            var text = this.innerHTML, lines = text.split("\n");
+            var removeChars = lines.reduce(function(previous, current){
+                var whiteSpace = /^\s*/g.exec(current)[0];
+
+                if (whiteSpace.length) {
+                    return Math.min(previous, whiteSpace.length);
+                }
+                else {
+                    return previous;
+                }
+
+            }, Number.MAX_VALUE)
+
+            var newText = lines.map(function(line) {
+               return line.slice(removeChars)
+            }).join("\n");
+
+            this.className += " lang-js";
+
+            this.innerHTML = newText;
         });
 
         prettyPrint();

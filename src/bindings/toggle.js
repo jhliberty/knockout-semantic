@@ -1,19 +1,21 @@
+var utils = require("../utils");
+
 module.exports = {
-    init: function(element, valueAccessor){
+    init: function toggleBinding(element, valueAccessor){
         var $el = $(element);
 
         // Toggle the observable on click
         $(element).click(function(){
-            var observable = valueAccessor();
+            var obj = valueAccessor();
 
             // Update the observable (true or false)
             // this also effects the class change
-            observable(!ko.unwrap(observable));
+            obj.on = !obj.on;
         });
 
         var updateClass = function(){
             // if we set it to true, add the "active" class
-            if (!!ko.unwrap(valueAccessor())) {
+            if (valueAccessor().on) {
                 $el.addClass('active');
             }
 
@@ -23,9 +25,35 @@ module.exports = {
             }
         };
 
-        valueAccessor().subscribe(updateClass);
+        // watch for changes
+        ko.getObservable(valueAccessor(), 'on').subscribe(updateClass);
 
         // invoke immediately to get the initial class correct
         updateClass();
+    },
+    makeRealNode: function(node, attributes) {
+        var toggle,
+            data = node.getAttribute("data");
+
+        if (!data) {
+            return {required: "data"};
+        }
+        console.log(data, utils.hashToBindingString({ toggle: data}));
+
+
+        toggle = document.createElement("div");
+
+        toggle.className = "ui toggle button";
+
+        toggle.setAttribute("data-bind", utils.hashToBindingString({
+            toggle: data,
+            text: node.getAttribute("text")
+        }));
+
+        if (node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE) {
+            toggle.appendChild(node.childNodes[0]);
+        }
+
+        return toggle;
     }
 };

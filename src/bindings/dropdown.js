@@ -1,0 +1,115 @@
+var fs = require('fs');
+var template = fs.readFileSync(__dirname + "/templates/dropdown.html");
+var Action = require("../classes/action.js");
+
+
+module.exports = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        // We need to figure out if we have a boolean variable/observable, or an object variable/observable
+        var value = valueAccessor(), isObservable = ko.isSubscribable(value),
+            realValue = ko.unwrap(value);
+
+
+        // Value may be an observable, and we have a list of options
+        if (isObservable && (typeof realValue == null || typeof realValue === "string")) {
+            if (isObservable) {
+                value.subscribe(function(newValue){
+                    if (newValue) {
+                        $(element).modal("show");
+                    }
+                    else {
+                        $(element.modal("hide"));
+                    }
+                });
+            }
+        }
+
+        // Maybe it's an object, so we'll be using our own template for this
+        else if (typeof realValue === "object") {
+            // this function handles the initial value, and the case of the object
+            // being replaced
+            var initializeModal = function(settings){
+
+                // if we have our own buttons config, we don't want to
+                // have Semantic-UI hide when a button is pressed
+                if (settings.buttons) {
+                    // Some nonexistent element
+                    settings.selector = "#fake" + new Date().getTime();
+                }
+
+                var context = ko.utils.extend({
+                    title: "",
+                    content: "",
+                    buttons: [
+                        new Action("Cancel", function(){}),
+                        new Action("Okay", function(){})
+                    ],
+                    show: false
+                }, settings);
+
+                // Patch the buttons so they get the element as this
+                ko.utils.arrayForEach(context.buttons, function(action){
+                    action.go = action.callback.bind(element);
+                });
+
+
+                // if we've already applied bindings, we need to clean up first
+                ko.cleanNode(element);
+
+                // load our module template
+                element.innerHTML = template;
+
+                if (ko.isSubscribable(context.show)) {
+                    var showing = false, hiding = false;
+                    context.show.subscribe(function(newValue){
+
+                        // We don't want these to fire if we're in the process
+                        // of showing or hiding already
+                        if (newValue && !showing) {
+                            $(element).modal("show");
+                        }
+                        else if (!newValue && !hiding) {
+                            $(element).modal("hide");
+                        }
+
+                        showing = false;
+                        hiding = false;
+                    });
+
+
+                    // we need our own onHide and onShow methods to make sure
+                    // our observable stays in check
+                    context.onShow = function(){
+                        showing = true;
+                        context.show(true);
+                    };
+                    context.onHide = function(){
+                        hiding = true;
+                        context.show(false);
+                    };
+                }
+
+                var innerBindingContext = bindingContext.createChildContext(context);
+                ko.applyBindingsToDescendants(innerBindingContext, element);
+
+                $(element).modal(context);
+            };
+
+            if (isObservable) {
+                initializeModal(realValue);
+                value.subscribe(initializeModal);
+            }
+            else {
+                initializeModal(realValue);
+            }
+
+            return { controlsDescendantBindings: true };
+        }
+
+        var newProperties = valueAccessor(),
+            innerBindingContext = bindingContext.extend(newProperties);
+
+
+
+    }
+};

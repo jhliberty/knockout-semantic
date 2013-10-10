@@ -1,2 +1,16 @@
-<div class="step" data-bind="text: step.text,
-            css: {active: step.active()}"></div>
+<!-- ko foreach: data -->
+<!-- ko if: $parent.disabled -->
+
+<div class="step" data-bind="text: $data,
+    css: {
+        active: $parent.active === $index() || $parent.active === $data,
+        disabled: $parent.active !== $index() && $parent.active !== $data
+    }"></div>
+<!-- /ko -->
+<!-- ko ifnot: $parent.disabled -->
+<div class="step" data-bind="text: $data,
+    css: { active: $parent.active === $index() || $parent.active === $data },
+    click: function(){ typeof $parent.active === 'number' ? $parent.active = $index() : $parent.active = $data }"></div>
+<!-- /ko -->
+
+<!-- /ko -->

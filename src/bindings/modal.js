@@ -1,56 +1,38 @@
 var fs = require('fs');
 var template = fs.readFileSync(__dirname + "/templates/modal.html");
 var Action = require("../classes/action.js");
+var utils = require("../utils.js");
 
 
 module.exports = {
-    init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+    init: function modalBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         // We need to figure out if we have a boolean variable/observable, or an object variable/observable
-        var value = valueAccessor(), isObservable = ko.isSubscribable(value),
-            realValue = ko.unwrap(value);
-
-
-        // Just a boolean value, so we'll watch it for changes and
-        // show/hide the modal
-        // the user is expected to handle the template
-        if (typeof realValue === "boolean") {
-            if (isObservable) {
-                value.subscribe(function(newValue){
-                    if (newValue) {
-                        $(element).modal("show");
-                    }
-                    else {
-                        $(element.modal("hide"));
-                    }
-                });
-            }
-        }
+        var obj = valueAccessor();
 
         // Maybe it's an object, so we'll be using our own template for this
-        else if (typeof realValue === "object") {
+        if ( typeof obj === "object" ) {
             // this function handles the initial value, and the case of the object
             // being replaced
-            var initializeModal = function(settings){
+            var initializeModal = function (settings) {
 
                 // if we have our own buttons config, we don't want to
                 // have Semantic-UI hide when a button is pressed
-                if (settings.buttons) {
+                if ( settings.buttons ) {
                     // Some nonexistent element
-                    settings.selector = "#fake" + new Date().getTime();
+                    settings.selector = "#fake-" + new Date().getTime();
                 }
 
                 var context = ko.utils.extend({
                     title: "",
                     content: "",
                     buttons: [
-                        new Action("Cancel", function(){}),
-                        new Action("Okay", function(){})
+                        new Action("Cancel", $.noop), new Action("Okay", $.noop)
                     ],
                     show: false
                 }, settings);
 
-                // Patch the buttons so they get the element as this
-                ko.utils.arrayForEach(context.buttons, function(action){
+                // Patch the buttons so they get the element as the `this`
+                ko.utils.arrayForEach(context.buttons, function (action) {
                     action.go = action.callback.bind(element);
                 });
 
@@ -61,57 +43,78 @@ module.exports = {
                 // load our module template
                 element.innerHTML = template;
 
-                if (ko.isSubscribable(context.show)) {
-                    var showing = false, hiding = false;
-                    context.show.subscribe(function(newValue){
+                var observable = ko.getObservable(context, "show");
 
-                        // We don't want these to fire if we're in the process
-                        // of showing or hiding already
-                        if (newValue && !showing) {
-                            $(element).modal("show");
+                var showing = false, hiding = true, _fake = {};
+
+                ko.defineProperty(_fake, "showSubscription", function () {
+
+                    // We don't want these to fire if we're in the process
+                    // of showing or hiding already
+                    if ( obj.show && !showing ) {
+                        $(element).modal("show");
+                    } else if ( !obj.show && !hiding ) {
+                        $(element).modal("hide").modal("hide dimmer");
+                    } else {
+                        console.log("fake")
+                    }
+                });
+
+                // hackish way to set our initial subscription
+                _fake.showSubscription;
+
+                // we need our own onHide and onShow methods to make sure
+                // our observable stays in check
+                context.onShow = function () {
+                    showing = true;
+
+                    setTimeout(function () {
+                        if ( obj.show ) {
+                            showing = false;
                         }
-                        else if (!newValue && !hiding) {
-                            $(element).modal("hide");
+                    }, 430);
+
+                    obj.show = true;
+                };
+                context.onHide = function () {
+                    hiding = true;
+
+                    setTimeout(function () {
+                        if ( !obj.show ) {
+                            hiding = false;
                         }
+                    }, 430);
 
-                        showing = false;
-                        hiding = false;
-                    });
-
-
-                    // we need our own onHide and onShow methods to make sure
-                    // our observable stays in check
-                    context.onShow = function(){
-                        showing = true;
-                        context.show(true);
-                    };
-                    context.onHide = function(){
-                        hiding = true;
-                        context.show(false);
-                    };
-                }
+                    obj.show = false;
+                };
 
                 var innerBindingContext = bindingContext.createChildContext(context);
+
+                // not sure if this is even possible with Knockout-ES5
+                // but I suppose they could still use ko.observable(thingImPassingToModalParam)
                 ko.applyBindingsToDescendants(innerBindingContext, element);
 
                 $(element).modal(context);
             };
 
-            if (isObservable) {
-                initializeModal(realValue);
-                value.subscribe(initializeModal);
-            }
-            else {
-                initializeModal(realValue);
-            }
+
+            initializeModal(obj);
+
 
             return { controlsDescendantBindings: true };
         }
+    }, makeRealNode: function (node, attributes) {
+        var modal, data = node.getAttribute("data");
 
-        var newProperties = valueAccessor(),
-            innerBindingContext = bindingContext.extend(newProperties);
+        if ( !data ) {
+            return {required: "data"};
+        }
 
+        modal = document.createElement("div");
+        modal.className = "ui modal";
 
+        modal.setAttribute("data-bind", utils.hashToBindingString({ modal: data}));
 
+        return modal;
     }
 };
