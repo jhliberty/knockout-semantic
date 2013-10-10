@@ -3,6 +3,10 @@ knockout-semantic
 
 knockoutjs and semantic-ui working together
 
+### Warning: this plugin isn't complete yet
+
+I'll release a v1.0.0 when I think it's ready to use.  Please help with development!
+
 ## Install
 
 The easiest way to get Knockout-Semantic is to use bower.
