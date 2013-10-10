@@ -30,8 +30,6 @@ var binding = {
         if ( !data ) {
             return {required: "data"};
         }
-        console.log(data, utils.hashToBindingString({ toggle: data}));
-
 
         steps = document.createElement("div");
 

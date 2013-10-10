@@ -43,48 +43,46 @@ module.exports = {
                 // load our module template
                 element.innerHTML = template;
 
-                var observable = ko.getObservable(context, "show");
+                var observable = ko.getObservable(obj, "show");
 
-                var showing = false, hiding = true, _fake = {};
+                var showing = false, hiding = false, _fake = {};
 
-                ko.defineProperty(_fake, "showSubscription", function () {
+                observable.subscribe(function () {
 
                     // We don't want these to fire if we're in the process
                     // of showing or hiding already
                     if ( obj.show && !showing ) {
+                        setTimeout(function () {
+                            showing = false;
+                        }, 430);
+
                         $(element).modal("show");
                     } else if ( !obj.show && !hiding ) {
+                        setTimeout(function () {
+                            if ( !obj.show ) {
+                                hiding = false;
+                            }
+                        }, 430);
+
                         $(element).modal("hide").modal("hide dimmer");
                     } else {
-                        console.log("fake")
+                        console.log("fake", showing, hiding);
                     }
                 });
 
                 // hackish way to set our initial subscription
-                _fake.showSubscription;
+                //_fake.showSubscription;
 
                 // we need our own onHide and onShow methods to make sure
                 // our observable stays in check
                 context.onShow = function () {
+                    console.log("onshow", showing, hiding);
                     showing = true;
-
-                    setTimeout(function () {
-                        if ( obj.show ) {
-                            showing = false;
-                        }
-                    }, 430);
-
                     obj.show = true;
                 };
                 context.onHide = function () {
+                    console.log("onhide", showing, hiding);
                     hiding = true;
-
-                    setTimeout(function () {
-                        if ( !obj.show ) {
-                            hiding = false;
-                        }
-                    }, 430);
-
                     obj.show = false;
                 };
 
