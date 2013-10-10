@@ -40,7 +40,7 @@ For some elements, like checkboxes, and buttons, you can just use Knockout as yo
 with value/click bindings.
 
 There are templates included which aim to be the most common use of the components.  For example,
-the modal allows you to set a title, an two-way observable representing the visibility
+the modal allows you to set a title, a two-way observable representing the visibility
 of the modal, and an array of buttons with functions attached to them.
 
 For examples of everything go to the [main page](http://brigand.github.io/knockout-semantic/).
@@ -78,7 +78,7 @@ Go into the project directory, and do the following.
 1. `git push origin gh-pages`
 1. send a pull request on github
 
-##$ New or Changed Functions
+## New or Changed Functions
 
 If you're changing functionality at all, you need to create a new branch.  Assuming you're
 in the project directory on gh-pages...
@@ -87,6 +87,7 @@ in the project directory on gh-pages...
     -`git pull git@github.com:brigand/knockout-semantic.git gh-pages`
 1. `git checkout -b feature-something`
 1. make your change(s)
+1. **don't** change the version numbers
 1. commit each **related** change individually; be descriptive
 1. `git push origin gh-pages`
 1. send a pull request on github
