@@ -66,16 +66,12 @@ module.exports = {
         if ( !data ) {
             return {required: "data"};
         }
-        console.log(data, utils.hashToBindingString({ toggle: data}));
-
-
         dropdown = document.createElement("div");
 
-        dropdown.className = ["ui dropdown", node.className];
+        utils.mergeClasses("ui dropdown", node, dropdown);
 
         dropdown.setAttribute("data-bind", utils.hashToBindingString({
-            toggle: data,
-            text: node.getAttribute("text")
+            dropdown: data
         }));
 
         // Preserve the text node if one exists

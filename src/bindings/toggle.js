@@ -38,8 +38,6 @@ module.exports = {
         if (!data) {
             return {required: "data"};
         }
-        console.log(data, utils.hashToBindingString({ toggle: data}));
-
 
         toggle = document.createElement("div");
         toggle.className = utils.mergeClasses("ui toggle button", node, toggle);

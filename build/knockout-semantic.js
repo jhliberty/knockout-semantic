@@ -6,58 +6,83 @@
 
 },{}],2:[function(require,module,exports){
 var utils = require("../utils");
+var fs = require('fs');
+var template = "<input type=\"hidden\">\n<i class=\"dropdown icon\"></i>\n<div class=\"default text\" data-bind=\"text: context.text || context.selected || context.defaultText\"></div>\n<div class=\"menu\" data-bind=\"foreach: context.data\">\n    <!-- ko if: $data.go -->\n        <div class=\"item\" data-bind=\"click: $data.go\">\n            <!-- ko if: $data.icon -->\n                <i data-bind=\"attr: {'class': 'icon ' + $data.icon}\"></i>\n            <!-- /ko -->\n            <!-- ko text: $data.name --><!-- /ko -->\n        </div>\n    <!-- /ko -->\n    <!-- ko ifnot: $data.go -->\n    <div class=\"item\" data-bind=\"text: $data\"></div>\n    <!-- /ko -->\n</div>\n<!--\ncontext.data[$index() | 0]-->\n";
 
 module.exports = {
-    init: function toggleBinding(element, valueAccessor){
-        var $el = $(element);
+    init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $el = $(element), obj = valueAccessor(), suppressUpdate;
 
-        // Toggle the observable on click
-        $(element).click(function(){
-            var obj = valueAccessor();
+        console.log("initiating dropdown");
 
-            // Update the observable (true or false)
-            // this also effects the class change
-            obj.on = !obj.on;
-        });
+        var updateSelection = function () {
+            var selected = obj.selected;
 
-        var updateClass = function(){
-            // if we set it to true, add the "active" class
-            if (valueAccessor().on) {
-                $el.addClass('active');
-            }
-
-            // otherwise, remove it
-            else {
-                $el.removeClass('active');
+            if ( suppressUpdate ) {
+                suppressUpdate = false;
+            } else {
+                suppressUpdate = true;
+                $el.find('.menu .item:contains(' + selected + ')').click();
             }
         };
 
         // watch for changes
-        ko.getObservable(valueAccessor(), 'on').subscribe(updateClass);
+        var selectedObservable = ko.getObservable(obj, 'selected');
 
-        // invoke immediately to get the initial class correct
-        updateClass();
+        if ( selectedObservable == null ) {
+            ko.track(obj);
+            selectedObservable = ko.getObservable(obj, 'selected');
+        }
+
+        obj.defaultText = obj.defaultText || element.textContent || "";
+
+
+        selectedObservable.subscribe(updateSelection);
+
+        // apply the template
+        element.innerHTML = template;
+
+        var innerBindingContext = bindingContext.createChildContext({
+            context: obj
+        });
+
+        // not sure if this is even possible with Knockout-ES5
+        // but I suppose they could still use ko.observable(thingImPassingToModalParam)
+
+        ko.applyBindingsToDescendants(innerBindingContext, element);
+        // invoke immediately to get the initial selection
+        updateSelection();
+
+        $el.dropdown({
+            onChange: function (value, text) {
+
+                if ( suppressUpdate ) {
+                    suppressUpdate = false;
+                } else {
+                    suppressUpdate = true;
+                    obj.selected = text;
+                }
+            }
+        });
+
+        return { controlsDescendantBindings: true };
     },
-    makeRealNode: function(node, attributes) {
-        var dropdown,
-            data = node.getAttribute("data");
+    makeRealNode: function (node) {
+        var dropdown, data = node.getAttribute("data");
 
-        if (!data) {
+        if ( !data ) {
             return {required: "data"};
         }
-        console.log(data, utils.hashToBindingString({ toggle: data}));
-
-
         dropdown = document.createElement("div");
 
-        dropdown.className = ["ui dropdown", node.className];
+        utils.mergeClasses("ui dropdown", node, dropdown);
 
         dropdown.setAttribute("data-bind", utils.hashToBindingString({
-            toggle: data,
-            text: node.getAttribute("text")
+            dropdown: data
         }));
 
-        if (node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE) {
+        // Preserve the text node if one exists
+        if ( node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
             dropdown.appendChild(node.childNodes[0]);
         }
 
@@ -65,7 +90,7 @@ module.exports = {
     }
 };
 
-},{"../utils":10}],3:[function(require,module,exports){
+},{"../utils":10,"fs":1}],3:[function(require,module,exports){
 var fs = require('fs');
 var template = "<i class=\"close icon\"></i>\n<div class=\"header\" data-bind=\"text: title\">\n\n</div>\n<div class=\"content\" data-bind=\"html: content\">\n    <div class=\"left\">\n        Content can appear on left\n    </div>\n    <div class=\"right\">\n        Content can appear on right\n    </div>\n</div>\n<div class=\"actions\" data-bind=\"foreach: buttons\">\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\n</div>";
 var Action = require("../classes").Action;
@@ -114,7 +139,7 @@ module.exports = {
 
         var observable = ko.getObservable(obj, "show");
 
-        var showing = false, hiding = false, _fake = {};
+        var showing = false, hiding = false;
 
         observable.subscribe(function () {
 
@@ -138,9 +163,6 @@ module.exports = {
                 console.log("fake", showing, hiding);
             }
         });
-
-        // hackish way to set our initial subscription
-        //_fake.showSubscription;
 
         // we need our own onHide and onShow methods to make sure
         // our observable stays in check
@@ -215,15 +237,11 @@ var binding = {
 
         steps = document.createElement("div");
 
-        steps.className = "ui steps";
+        utils.mergeClasses("ui steps", node, steps);
 
         steps.setAttribute("data-bind", utils.hashToBindingString({
             steps: data
         }));
-
-        if ( node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
-            steps.appendChild(node.childNodes[0]);
-        }
 
         return steps;
     }
@@ -272,18 +290,16 @@ module.exports = {
         if (!data) {
             return {required: "data"};
         }
-        console.log(data, utils.hashToBindingString({ toggle: data}));
-
 
         toggle = document.createElement("div");
-
-        toggle.className = "ui toggle button";
+        toggle.className = utils.mergeClasses("ui toggle button", node, toggle);
 
         toggle.setAttribute("data-bind", utils.hashToBindingString({
             toggle: data,
             text: node.getAttribute("text")
         }));
 
+        // preserve a text node if one exists
         if (node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE) {
             toggle.appendChild(node.childNodes[0]);
         }
@@ -293,6 +309,9 @@ module.exports = {
 };
 
 },{"../utils":10}],6:[function(require,module,exports){
+/**
+ * @constructor
+ */
 function Steps(obj) {
     ko.utils.extend(this, obj);
     ko.track(this);
@@ -306,19 +325,42 @@ function Steps(obj) {
  * @constructor
  */
 function Action(name, callback, icon) {
-    var self = this;
+    var _this = this;
 
-    self.name = name;
-    self.callback = callback || $.noop;
+    this.name = name;
+    this.icon = icon || false;
+    this.callback = callback || $.noop;
 
-    self.go = function () {
-        self.callback.apply(self, arguments);
+    _this.go = function () {
+        _this.callback.apply(_this, arguments);
     };
+
+    ko.track(this, ["name", "icon"]);
+}
+
+/**
+ * @constructor
+ */
+function Toggle(obj) {
+    ko.utils.extend(this, obj);
+    this.on = initial || false;
+    ko.track(this);
+}
+
+/**
+ * @constructor
+ */
+function Dropdown(obj) {
+    ko.utils.extend(this, obj);
+    this.selected = obj.selected || null;
+    ko.track(this);
 }
 
 module.exports = {
     Action: Action,
-    Steps: Steps
+    Steps: Steps,
+    Toggle: Toggle,
+    Dropdown: Dropdown
 };
 },{}],7:[function(require,module,exports){
 
@@ -333,6 +375,7 @@ var bindingHandlers = window.ko.bindingHandlers;
 bindingHandlers["toggle"] = require("./bindings/toggle");
 bindingHandlers["steps"] = require("./bindings/steps");
 bindingHandlers["modal"] = require("./bindings/modal");
+bindingHandlers["dropdown"] = require("./bindings/dropdown");
 
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");
@@ -351,7 +394,7 @@ if ( typeof window !== "undefined" ) {
     window.sui = module.exports;
 }
 
-},{"./bindings/modal":3,"./bindings/steps":4,"./bindings/toggle":5,"./classes":6,"./suiBindingProvider.js":9}],9:[function(require,module,exports){
+},{"./bindings/dropdown":2,"./bindings/modal":3,"./bindings/steps":4,"./bindings/toggle":5,"./classes":6,"./suiBindingProvider.js":9}],9:[function(require,module,exports){
 var config = require("./config");
 
 /* --- Namespace binding provider ---
@@ -492,7 +535,7 @@ module.exports = {
      * @param {HTMLElement} dest the element to assign the new classes to
      */
     mergeClasses: function(extra, source, dest) {
-        var sourceClasses = source.classNames;
+        var sourceClasses = source.className;
         if (sourceClasses) {
             dest.className = extra + " " + sourceClasses;
         }
@@ -502,5 +545,5 @@ module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,5,6,7,8,9,10])
+},{}]},{},[2,3,4,5,7,6,8,9,10])
 ;

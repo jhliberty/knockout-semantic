@@ -24,7 +24,7 @@ module.exports = {
      * @param {HTMLElement} dest the element to assign the new classes to
      */
     mergeClasses: function(extra, source, dest) {
-        var sourceClasses = source.classNames;
+        var sourceClasses = source.className;
         if (sourceClasses) {
             dest.className = extra + " " + sourceClasses;
         }

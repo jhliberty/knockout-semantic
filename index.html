@@ -36,12 +36,16 @@
     <div class="ui segment">
         <div class="ui header">What is it?</div>
         <p>This is a plugin which facilitates using Semantic-UI and KnockoutJS together.</p>
+
         <p>This project was started when Semantic-UI was just starting out, and
-        Knockout 3.0 was on the horizon.</p>
+            Knockout 3.0 was on the horizon.</p>
+
         <p>Knockout works with browsers as old as IE6, but Semantic is a modern
-        browser framework.  That gave me the luxury of using the lovely
-        Knockout ES5 plugin, so none of that <code>myObservable(myObservable() + 1)</code> nonsense.</p>
+            browser framework. That gave me the luxury of using the lovely
+            Knockout ES5 plugin, so none of that <code>myObservable(myObservable() + 1)</code> nonsense.</p>
+
         <p>Knockout 3.0 adds some awesome new features, which we take advantage of here.</p>
+
         <p>This isn't for every project, and is designed for new projects.</p>
     </div>
 </div>
@@ -51,11 +55,13 @@
     <div class="ui segment">
         <div class="ui header">Download/Install</div>
         <p>You can use the official Semantic-UI download builder, which includes the option
-            to use this plugin.  Also, bower and git are options.</p>
+            to use this plugin. Also, bower and git are options.</p>
+
         <div class="ui form">
             <div class="ui field">
                 <div class="huge ui left icon input">
-                    <input type="text" value="bower install knockout-semantic" onmouseover="this.select()" onmouseout="this.blur()">
+                    <input type="text" value="bower install knockout-semantic" onmouseover="this.select()"
+                           onmouseout="this.blur()">
                     <i class="terminal icon"></i>
                 </div>
             </div>
@@ -121,6 +127,75 @@
     </div>
 </div>
 
+<!-- DROPDOWN -->
+<div class="container">
+    <div class="ui piled segment">
+        <h2 class="ui large dividing header" name="steps">Dropdown</h2>
+
+        <iframe
+                src="http://jsfiddle.net/brigand/6MRBx/embedded/html,js,result/presentation/">
+        </iframe>
+
+        <div class="ui two column grid">
+            <div class="column">
+                <p>Dropdowns are very useful, and can be thought of as a prettier
+                    version of select.</p>
+
+                <p>Notice the use of <code>sui.Action</code> in the second
+                    dropdown. This lets you set optional callbacks and icons.</p>
+
+                <p>If you just want to know when the dropdown changes,
+                    make a <code>ko.computed</code> or similar which checks the selected
+                    attribute.</p>
+            </div>
+
+            <div class="column">
+                <table class="ui blue celled table segment">
+                    <thead>
+                    <th>dropdown binding</th>
+                    <th>types</th>
+                    <th>description</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>data</td>
+                        <td>Array[String | Action]</td>
+                        <td>
+                            <p>the contents of the dropdown</p>
+
+                            <p>can be regular strings, or Actions which
+                                have a name, callback (optional), and icon (optional)</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>defaultText</td>
+                        <td>String</td>
+                        <td>
+                            <p>text to be shown when there is no selection</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>text</td>
+                        <td>String</td>
+                        <td>
+                            <p>like defaultText, but doesn't change reguardless of selection</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>selected</td>
+                        <td>String</td>
+                        <td>
+                            <p>the most recently chosen item's text</p>
+
+                            <p>set this to change the selection</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- STEPS -->
 <div class="container">
     <div class="ui piled segment">
@@ -288,3 +363,4 @@
 
 </body>
 </html>
+<td>String</td>
