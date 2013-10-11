@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function Steps(obj) {
     ko.utils.extend(this, obj);
     ko.track(this);
@@ -11,24 +14,40 @@ function Steps(obj) {
  * @constructor
  */
 function Action(name, callback, icon) {
-    var self = this;
+    var _this = this;
 
-    self.name = name;
-    self.callback = callback || $.noop;
+    this.name = name;
+    this.icon = icon || false;
+    this.callback = callback || $.noop;
 
-    self.go = function () {
-        self.callback.apply(self, arguments);
+    _this.go = function () {
+        _this.callback.apply(_this, arguments);
     };
+
+    ko.track(this, ["name", "icon"]);
 }
 
-function Toggle(initial){
+/**
+ * @constructor
+ */
+function Toggle(obj) {
+    ko.utils.extend(this, obj);
     this.on = initial || false;
     ko.track(this);
 }
 
+/**
+ * @constructor
+ */
+function Dropdown(obj) {
+    ko.utils.extend(this, obj);
+    this.selected = obj.selected || null;
+    ko.track(this);
+}
 
 module.exports = {
     Action: Action,
     Steps: Steps,
-    Toggle: Toggle
+    Toggle: Toggle,
+    Dropdown: Dropdown
 };

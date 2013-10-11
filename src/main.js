@@ -3,6 +3,7 @@ var bindingHandlers = window.ko.bindingHandlers;
 bindingHandlers["toggle"] = require("./bindings/toggle");
 bindingHandlers["steps"] = require("./bindings/steps");
 bindingHandlers["modal"] = require("./bindings/modal");
+bindingHandlers["dropdown"] = require("./bindings/dropdown");
 
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");

@@ -1,41 +1,69 @@
 var utils = require("../utils");
+var fs = require('fs');
+var template = fs.readFileSync(__dirname + "/templates/dropdown.html");
 
 module.exports = {
-    init: function toggleBinding(element, valueAccessor){
-        var $el = $(element);
+    init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $el = $(element), obj = valueAccessor(), suppressUpdate;
 
-        // Toggle the observable on click
-        $(element).click(function(){
-            var obj = valueAccessor();
+        console.log("initiating dropdown");
 
-            // Update the observable (true or false)
-            // this also effects the class change
-            obj.on = !obj.on;
-        });
+        var updateSelection = function () {
+            var selected = obj.selected;
 
-        var updateClass = function(){
-            // if we set it to true, add the "active" class
-            if (valueAccessor().on) {
-                $el.addClass('active');
-            }
-
-            // otherwise, remove it
-            else {
-                $el.removeClass('active');
+            if ( suppressUpdate ) {
+                suppressUpdate = false;
+            } else {
+                suppressUpdate = true;
+                $el.find('.menu .item:contains(' + selected + ')').click();
             }
         };
 
         // watch for changes
-        ko.getObservable(valueAccessor(), 'on').subscribe(updateClass);
+        var selectedObservable = ko.getObservable(obj, 'selected');
 
-        // invoke immediately to get the initial class correct
-        updateClass();
+        if ( selectedObservable == null ) {
+            ko.track(obj);
+            selectedObservable = ko.getObservable(obj, 'selected');
+        }
+
+        obj.defaultText = obj.defaultText || element.textContent || "";
+
+
+        selectedObservable.subscribe(updateSelection);
+
+        // apply the template
+        element.innerHTML = template;
+
+        var innerBindingContext = bindingContext.createChildContext({
+            context: obj
+        });
+
+        // not sure if this is even possible with Knockout-ES5
+        // but I suppose they could still use ko.observable(thingImPassingToModalParam)
+
+        ko.applyBindingsToDescendants(innerBindingContext, element);
+        // invoke immediately to get the initial selection
+        updateSelection();
+
+        $el.dropdown({
+            onChange: function (value, text) {
+
+                if ( suppressUpdate ) {
+                    suppressUpdate = false;
+                } else {
+                    suppressUpdate = true;
+                    obj.selected = text;
+                }
+            }
+        });
+
+        return { controlsDescendantBindings: true };
     },
-    makeRealNode: function(node, attributes) {
-        var dropdown,
-            data = node.getAttribute("data");
+    makeRealNode: function (node) {
+        var dropdown, data = node.getAttribute("data");
 
-        if (!data) {
+        if ( !data ) {
             return {required: "data"};
         }
         console.log(data, utils.hashToBindingString({ toggle: data}));
@@ -50,7 +78,8 @@ module.exports = {
             text: node.getAttribute("text")
         }));
 
-        if (node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE) {
+        // Preserve the text node if one exists
+        if ( node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
             dropdown.appendChild(node.childNodes[0]);
         }
 
