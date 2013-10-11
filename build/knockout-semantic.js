@@ -292,7 +292,7 @@ module.exports = {
         }
 
         toggle = document.createElement("div");
-        toggle.className = utils.mergeClasses("ui toggle button", node, toggle);
+        utils.mergeClasses("ui toggle button", node, toggle);
 
         toggle.setAttribute("data-bind", utils.hashToBindingString({
             toggle: data,
