@@ -341,9 +341,8 @@ function Action(name, callback, icon) {
 /**
  * @constructor
  */
-function Toggle(obj) {
-    ko.utils.extend(this, obj);
-    this.on = initial || false;
+function Toggle(bool) {
+    this.on = bool || false;
     ko.track(this);
 }
 
@@ -386,7 +385,12 @@ module.exports = require("./classes");
 
 /* not sure what other libs use the 'semantic' global, but it's good practice */
 module.exports.noConflict = function () {
-    window["semantic"] = previousNamespace;
+    if (previousNamespace != null) {
+        window.sui = previousNamespace;
+    }
+    else {
+        delete window.sui;
+    }
     return module.exports;
 };
 
@@ -545,5 +549,5 @@ module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,5,7,6,8,9,10])
+},{}]},{},[2,3,4,5,6,7,8,9,10])
 ;

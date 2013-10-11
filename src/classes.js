@@ -30,9 +30,8 @@ function Action(name, callback, icon) {
 /**
  * @constructor
  */
-function Toggle(obj) {
-    ko.utils.extend(this, obj);
-    this.on = initial || false;
+function Toggle(bool) {
+    this.on = bool || false;
     ko.track(this);
 }
 
