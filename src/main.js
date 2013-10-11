@@ -14,7 +14,12 @@ module.exports = require("./classes");
 
 /* not sure what other libs use the 'semantic' global, but it's good practice */
 module.exports.noConflict = function () {
-    window["semantic"] = previousNamespace;
+    if (previousNamespace != null) {
+        window.sui = previousNamespace;
+    }
+    else {
+        delete window.sui;
+    }
     return module.exports;
 };
 
