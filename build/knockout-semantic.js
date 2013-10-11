@@ -191,9 +191,6 @@ var template = "<!-- ko foreach: data -->\n<!-- ko if: $parent.disabled -->\n\n<
 
 var utils = require("../utils");
 
-var Step = require("../classes/step.js");
-var util = require("../utils.js");
-
 var binding = {
     'init': function stepsBingindInit(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var obj = valueAccessor(), $el = $(element);
@@ -237,7 +234,7 @@ var binding = {
 };
 
 module.exports = binding;
-},{"../classes/step.js":7,"../utils":11,"../utils.js":11,"fs":1}],5:[function(require,module,exports){
+},{"../utils":11,"fs":1}],5:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
@@ -318,18 +315,12 @@ function Action(name, callback) {
 
 module.exports = Action;
 },{}],7:[function(require,module,exports){
-function Step(text, activeTest){
-    this.text = ko.observable(text);
-
-    if (typeof activeTest === "functon") {
-        this.active = ko.computed(activeTest);
-    }
-    else {
-        this.active = activeTest;
-    }
+function Steps(obj){
+    ko.utils.extend(this, obj);
+    ko.track(this);
 }
 
-module.exports = Step;
+module.exports = Steps;
 },{}],8:[function(require,module,exports){
 
 var config = {
@@ -350,21 +341,17 @@ require("./suiBindingProvider.js");
 var previousSemantic = window.semantic;
 
 module.exports = {
-    Step: require("./classes/step.js"),
-    Action: require("./classes/action.js"),
-
     /* not sure what other libs use the 'semantic' global, but it's good practice */
     noConflict: function(){
         window["semantic"] = previousSemantic;
         return module.exports;
     }
-
 };
 
 if (typeof window !== "undefined") {
     window["semantic"] = module.exports;
 }
-},{"./bindings/modal":3,"./bindings/steps":4,"./bindings/toggle":5,"./classes/action.js":6,"./classes/step.js":7,"./suiBindingProvider.js":10}],10:[function(require,module,exports){
+},{"./bindings/modal":3,"./bindings/steps":4,"./bindings/toggle":5,"./suiBindingProvider.js":10}],10:[function(require,module,exports){
 var config = require("./config");
 
 /* --- Namespace binding provider ---
@@ -515,5 +502,5 @@ module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,5,6,7,8,9,10,11])
+},{}]},{},[2,3,4,5,7,6,8,9,10,11])
 ;

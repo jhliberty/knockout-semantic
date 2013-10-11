@@ -3,9 +3,6 @@ var template = fs.readFileSync(__dirname + "/templates/steps.html");
 
 var utils = require("../utils");
 
-var Step = require("../classes/step.js");
-var util = require("../utils.js");
-
 var binding = {
     'init': function stepsBingindInit(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var obj = valueAccessor(), $el = $(element);

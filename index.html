@@ -28,102 +28,93 @@
     <script type="text/javascript" src="lib/beautify-html.js"></script>
 </head>
 <body>
+<header class="basic ui segment">
+    <h1 class="ui huge header">Where Knockout meets Semantic-UI</h1>
+</header>
 
-<script>
-    // we're doing this up here because we're hackers who
-    // like to make script tags visible 'n stuff
-    var viewModel = {};
-</script>
+<!-- Download Info -->
+<div class="container">
+    <div class="ui segment">
+        <div class="ui header">Download/Install</div>
+        <div class="ui form">
+            <div class="ui field">
+                <div class="huge ui left icon input">
+                    <input type="text" value="bower install knockout-semantic" onmouseover="this.select()">
+                    <i class="terminal icon"></i>
+                </div>
+            </div>
+        </div>
 
+        <p class="ui small header">Make sure things are loaded in the correct order</p>
+        <div style="margin: .5em 3em">
+            <ul>
+                <li>jQuery</li>
+                <li>KnockoutJS 3.0 and Semantic-UI</li>
+                <li>Knockout-Semantic</li>
+                <li>the script that calls ko.applyBindings()</li>
+            </ul>
+        </div>
+    </div>
+</div>
 <!-- TOGGLE -->
 <div class="container">
-    <header class="ui segment">
-        <h1>Where Knockout meets Semantic-UI</h1>
-    </header>
-    <div class="ui segment">
-        <h3>A simple toggle:</h3>
 
-        <script class="prettyprint">
-            viewModel.toggle = {
-                on: true,
-                text: function () {
-                    if ( viewModel.toggle.on ) {
-                        return ":)"
-                    } else {
-                        return ":("
-                    }
-                }
-            };
+    <div class="ui piled segment">
+        <h2 class="ui large dividing header" name="toggle">Toggle</h2>
 
-            ko.track(viewModel.toggle, ["on"]);
-        </script>
-
-        <p>Notice that there are two options for defining elements.</p>
-
-        <p>You can use the usual data-bind syntax, or use the custom element
-            syntax. Certain elements support certain bindings, but the data-binding
-            for <code>&lt;sui-something /&gt;</code> will always correspond to the
-            <code>something</code> binding.</p>
-
-        <p>Toggle supports the text binding currently.</p>
+        <iframe
+                src="http://jsfiddle.net/brigand/LNFAu/embedded/html,js,result/presentation/">
+        </iframe>
 
 
         <div class="ui two column grid">
             <div class="column">
-                <div class="sample">
-                    <div class="ui button toggle" data-bind="toggle: toggle, text: toggle.text()">Toggle Me</div>
-                    <sui-toggle data="toggle" text="toggle.text()">I'm fancy!</sui-toggle>
-                </div>
-            </div>
-            <div class="column codeTarget"></div>
-        </div>
+                <p>Notice that there are two options for defining elements.</p>
 
-        <dl class="parameters">
-            <dt>toggle</dt>
-            <dd class="types">Boolean</dd>
-            <dd>the state (true or false) of the element</dd>
-        </dl>
+                <p>You can use the usual data-bind syntax, or use the custom element
+                    syntax. Certain elements support certain bindings, but the data-binding
+                    for <code>&lt;sui-something /&gt;</code> will always correspond to the
+                    <code>something</code> binding.</p>
+
+                <p>Toggle supports the text binding currently.</p>
+            </div>
+
+            <div class="column">
+                <table class="ui blue celled table segment">
+                    <thead>
+                    <th>toggle binding</th>
+                    <th>types</th>
+                    <th>description</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>on</td>
+                        <td>Boolean</td>
+                        <td>
+                            <p>if true the element will get the active class</p>
+
+                            <p>when clicked the state will toggle</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- STEPS -->
 <div class="container">
-    <div class="ui segment">
-        <h3>Steps:</h3>
+    <div class="ui piled segment">
+        <h2 class="ui large dividing header" name="steps">Steps</h2>
 
-
-        <script class="prettyprint">
-            viewModel.steps = {
-                data: [
-                    'One', 'Two', 'Three'
-                ],
-                active: 'Two'
-            };
-
-            viewModel.steps2 = {
-                data: [
-                    "Flour", "Eggs", "Mix"
-                ],
-                active: 2,
-                disabled: true
-            };
-
-            ko.track(viewModel.steps, ["active"]);
-            ko.track(viewModel.steps2, ["data"]);
-        </script>
+        <iframe
+                src="http://jsfiddle.net/brigand/7xGgU/embedded/html,js,result/presentation/">
+        </iframe>
 
         <div class="ui two column grid">
+
             <div class="column">
-                <div class="sample">
-                    <div class="ui steps"
-                         data-bind="steps: steps"></div>
-                </div>
-                <div class="sample">
-                    <sui-steps data="steps2" />
-                </div>
-
-                <hr>
-
                 <p>
                     <strong>active</strong> could be the string "Two", the index 1, or any other value/index.
                     When you set what <strong>active</strong> is, we'll honor the type when the user changes it.
@@ -132,104 +123,86 @@
 
                 <p>We have a template for this, but you're welcome to use a foreach binding to get
                     a little more control.</p>
-
             </div>
-            <div class="column codeTarget">
+
+            <div class="column">
+                <table class="ui blue celled table segment">
+                    <thead>
+                    <th>steps binding</th>
+                    <th>types</th>
+                    <th>description</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>data</td>
+                        <td>Array[String]</td>
+                        <td>a list of step labels</td>
+                    </tr>
+                    <tr>
+                        <td>active</td>
+                        <td>Number | String</td>
+                        <td>The index or value of the active step, e.g. 1 or "Two"</td>
+                    </tr>
+                    <tr>
+                        <td>disabled</td>
+                        <td>Boolean</td>
+                        <td>true if the user shouldn't be able to change the step by clicking</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <dl class="parameters">
-            <dt>data</dt>
-            <dd class="types">Array[String]</dd>
-            <dd>a list of step labels</dd>
-
-            <dt>active</dt>
-            <dd class="types">Number | String</dd>
-            <dd>The index or value of the active step, e.g. 1 or "Two"</dd>
-
-            <dt>disabled</dt>
-            <dd class="types">Boolean</dd>
-            <dd>true if the user shouldn't be able to change the step by clicking</dd>
-        </dl>
     </div>
 </div>
 
 <!-- Modal -->
 <div class="container">
-    <div class="ui segment">
-        <h3>Modal:</h3>
+    <div class="ui piled segment">
+        <h2 class="ui large dividing header" name="modal">Modal</h2>
 
         <div class="ui segment">
-        <div class="red ui header">Doesn't currently work</div>
+            <div class="red ui header">Doesn't currently work</div>
             <p>please take a look and see if you can figure it out</p>
         </div>
+
+        <iframe
+                src="http://jsfiddle.net/brigand/9ThfH/embedded/html,js,result/presentation/">
+        </iframe>
 
         <div class="ui two column grid">
 
             <div class="column">
-
-                <script class="prettyprint">
-                    viewModel.shouldTheModalBeVisible = {};
-
-                    viewModel.myModal = {
-                        title: 'My Modal',
-                        content: 'I am a <strong>MODAL!!!</strong>',
-                        show: false,
-                        buttons: [
-                            new semantic.Action("Close me with jQuery", function () {
-                                $(this).modal("hide dimmer");
-                            }), new semantic.Action("Close me by setting show to false", function () {
-                                viewModel.myModal.show = false;
-                            })
-                        ]
-                    };
-                    ko.defineProperty(viewModel.shouldTheModalBeVisible, "on", {
-                        get: function () {
-                            console.log("get", viewModel.myModal.show)
-                            return viewModel.myModal.show;
-                        },
-                        set: function(val) {
-                            console.log("set", val)
-                            viewModel.myModal.show = val;
-                        }
-                    });
-                    ko.track(viewModel.myModal);
-
-                </script>
-
-                <div class="ui modal sample"
-                     data-bind="modal: myModal"></div>
-
-
-                <div class="ui button toggle" data-bind="toggle: shouldTheModalBeVisible">Show the Modal</div>
+                <p></p>
             </div>
-            <div class="column codeTarget">
+
+            <div class="column">
+                <table class="ui blue celled table segment">
+                    <thead>
+                    <th>modal binding</th>
+                    <th>types</th>
+                    <th>description</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>data</td>
+                        <td>Array[String]</td>
+                        <td>a list of step labels</td>
+                    </tr>
+                    <tr>
+                        <td>active</td>
+                        <td>Number | String</td>
+                        <td>The index or value of the active step, e.g. 1 or "Two"</td>
+                    </tr>
+                    <tr>
+                        <td>disabled</td>
+                        <td>Boolean</td>
+                        <td>true if the user shouldn't be able to change the step by clicking</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <dl class="parameters">
-            <dt>title</dt>
-            <dd class="types">String (optional)</dd>
-            <dd>title for the modal</dd>
-
-            <dt>content</dt>
-            <dd class="types">String (optional)</dd>
-            <dd>The HTML content of the modal. <strong>data-bind</strong> works,
-                but you must use $root or $parent to access your ViewModel
-            </dd>
-
-            <dt>show</dt>
-            <dd class="types">Boolean</dd>
-            <dd>The model's visiblity. Change an observable to change the value. This is also updated if the
-                modal is shown or closed elsewhere in the code.
-            </dd>
-
-            <dt>buttons</dt>
-            <dd class="types">Array[Action]</dd>
-            <dd>The names and behavisrcors for the buttons at the bottom of the modal.</dd>
-
-
-        </dl>
     </div>
 </div>
 
@@ -237,9 +210,6 @@
 <script type="text/javascript">
 
     makeTheCodeAllPretty();
-
-    ko.track(viewModel, ["toggle"]);
-    ko.applyBindings(viewModel);
 
     function makeTheCodeAllPretty() {
         // Some formatting for the code snippets
@@ -271,22 +241,21 @@
             $(this).append($pre);
         });
 
-        $('script.prettyprint').each(function(){
+        $('script.prettyprint').each(function () {
             var text = this.innerHTML, lines = text.split("\n");
-            var removeChars = lines.reduce(function(previous, current){
+            var removeChars = lines.reduce(function (previous, current) {
                 var whiteSpace = /^\s*/g.exec(current)[0];
 
-                if (whiteSpace.length) {
+                if ( whiteSpace.length ) {
                     return Math.min(previous, whiteSpace.length);
-                }
-                else {
+                } else {
                     return previous;
                 }
 
             }, Number.MAX_VALUE)
 
-            var newText = lines.map(function(line) {
-               return line.slice(removeChars)
+            var newText = lines.map(function (line) {
+                return line.slice(removeChars)
             }).join("\n");
 
             this.className += " lang-js";

@@ -7,20 +7,16 @@ bindingHandlers["modal"] = require("./bindings/modal");
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");
 
-var previousSemantic = window.semantic;
+var previousNamespace = window.sui;
 
-module.exports = {
-    Step: require("./classes/step.js"),
-    Action: require("./classes/action.js"),
+module.exports = require("./classes");
 
-    /* not sure what other libs use the 'semantic' global, but it's good practice */
-    noConflict: function(){
-        window["semantic"] = previousSemantic;
-        return module.exports;
-    }
-
+/* not sure what other libs use the 'semantic' global, but it's good practice */
+module.exports.noConflict = function () {
+    window["semantic"] = previousNamespace;
+    return module.exports;
 };
 
-if (typeof window !== "undefined") {
-    window["semantic"] = module.exports;
+if ( typeof window !== "undefined" ) {
+    window.sui = module.exports;
 }
