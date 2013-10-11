@@ -28,24 +28,41 @@
     <script type="text/javascript" src="lib/beautify-html.js"></script>
 </head>
 <body>
-<header class="basic ui segment">
+<header class="center aligned basic ui segment">
     <h1 class="ui huge header">Where Knockout meets Semantic-UI</h1>
 </header>
+
+<div class="container">
+    <div class="ui segment">
+        <div class="ui header">What is it?</div>
+        <p>This is a plugin which facilitates using Semantic-UI and KnockoutJS together.</p>
+        <p>This project was started when Semantic-UI was just starting out, and
+        Knockout 3.0 was on the horizon.</p>
+        <p>Knockout works with browsers as old as IE6, but Semantic is a modern
+        browser framework.  That gave me the luxury of using the lovely
+        Knockout ES5 plugin, so none of that <code>myObservable(myObservable() + 1)</code> nonsense.</p>
+        <p>Knockout 3.0 adds some awesome new features, which we take advantage of here.</p>
+        <p>This isn't for every project, and is designed for new projects.</p>
+    </div>
+</div>
 
 <!-- Download Info -->
 <div class="container">
     <div class="ui segment">
         <div class="ui header">Download/Install</div>
+        <p>You can use the official Semantic-UI download builder, which includes the option
+            to use this plugin.  Also, bower and git are options.</p>
         <div class="ui form">
             <div class="ui field">
                 <div class="huge ui left icon input">
-                    <input type="text" value="bower install knockout-semantic" onmouseover="this.select()">
+                    <input type="text" value="bower install knockout-semantic" onmouseover="this.select()" onmouseout="this.blur()">
                     <i class="terminal icon"></i>
                 </div>
             </div>
         </div>
 
         <p class="ui small header">Make sure things are loaded in the correct order</p>
+
         <div style="margin: .5em 3em">
             <ol>
                 <li>jQuery</li>

@@ -65,10 +65,10 @@ module.exports = {
     }
 };
 
-},{"../utils":11}],3:[function(require,module,exports){
+},{"../utils":10}],3:[function(require,module,exports){
 var fs = require('fs');
 var template = "<i class=\"close icon\"></i>\n<div class=\"header\" data-bind=\"text: title\">\n\n</div>\n<div class=\"content\" data-bind=\"html: content\">\n    <div class=\"left\">\n        Content can appear on left\n    </div>\n    <div class=\"right\">\n        Content can appear on right\n    </div>\n</div>\n<div class=\"actions\" data-bind=\"foreach: buttons\">\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\n</div>";
-var Action = require("../classes/action.js");
+var Action = require("../classes").Action;
 var utils = require("../utils.js");
 
 
@@ -77,98 +77,95 @@ module.exports = {
         // We need to figure out if we have a boolean variable/observable, or an object variable/observable
         var obj = valueAccessor();
 
-        // Maybe it's an object, so we'll be using our own template for this
-        if ( typeof obj === "object" ) {
-            // this function handles the initial value, and the case of the object
-            // being replaced
-            var initializeModal = function (settings) {
-
-                // if we have our own buttons config, we don't want to
-                // have Semantic-UI hide when a button is pressed
-                if ( settings.buttons ) {
-                    // Some nonexistent element
-                    settings.selector = "#fake-" + new Date().getTime();
-                }
-
-                var context = ko.utils.extend({
-                    title: "",
-                    content: "",
-                    buttons: [
-                        new Action("Cancel", $.noop), new Action("Okay", $.noop)
-                    ],
-                    show: false
-                }, settings);
-
-                // Patch the buttons so they get the element as the `this`
-                ko.utils.arrayForEach(context.buttons, function (action) {
-                    action.go = action.callback.bind(element);
-                });
-
-
-                // if we've already applied bindings, we need to clean up first
-                ko.cleanNode(element);
-
-                // load our module template
-                element.innerHTML = template;
-
-                var observable = ko.getObservable(obj, "show");
-
-                var showing = false, hiding = false, _fake = {};
-
-                observable.subscribe(function () {
-
-                    // We don't want these to fire if we're in the process
-                    // of showing or hiding already
-                    if ( obj.show && !showing ) {
-                        setTimeout(function () {
-                            showing = false;
-                        }, 430);
-
-                        $(element).modal("show");
-                    } else if ( !obj.show && !hiding ) {
-                        setTimeout(function () {
-                            if ( !obj.show ) {
-                                hiding = false;
-                            }
-                        }, 430);
-
-                        $(element).modal("hide").modal("hide dimmer");
-                    } else {
-                        console.log("fake", showing, hiding);
-                    }
-                });
-
-                // hackish way to set our initial subscription
-                //_fake.showSubscription;
-
-                // we need our own onHide and onShow methods to make sure
-                // our observable stays in check
-                context.onShow = function () {
-                    console.log("onshow", showing, hiding);
-                    showing = true;
-                    obj.show = true;
-                };
-                context.onHide = function () {
-                    console.log("onhide", showing, hiding);
-                    hiding = true;
-                    obj.show = false;
-                };
-
-                var innerBindingContext = bindingContext.createChildContext(context);
-
-                // not sure if this is even possible with Knockout-ES5
-                // but I suppose they could still use ko.observable(thingImPassingToModalParam)
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-
-                $(element).modal(context);
-            };
-
-
-            initializeModal(obj);
-
-
-            return { controlsDescendantBindings: true };
+        // if we have our own buttons config, we don't want to
+        // have Semantic-UI hide when a button is pressed
+        if ( settings.buttons ) {
+            // Some nonexistent element
+            settings.selector = "#fake-" + new Date().getTime();
         }
+
+        var context = ko.utils.extend({
+            title: "",
+            content: "",
+            buttons: [
+                new Action("Cancel", $.noop), new Action("Okay", $.noop)
+            ],
+            show: false
+        }, obj);
+
+        // Patch the buttons so they get the element as the `this`
+        ko.utils.arrayForEach(context.buttons, function (action) {
+            // but only do this once
+            action.go = action.callback.bind(element);
+            action.go._wasAlreadyPatched = true;
+        });
+
+
+        // if we've already applied bindings, we need to clean up first
+        ko.cleanNode(element);
+
+
+        // check if there are children
+        // if so, we don't want to delete them
+        if ( element.children.length === 0 ) {
+            // load our module template
+            element.innerHTML = template;
+        }
+
+        var observable = ko.getObservable(obj, "show");
+
+        var showing = false, hiding = false, _fake = {};
+
+        observable.subscribe(function () {
+
+            // We don't want these to fire if we're in the process
+            // of showing or hiding already
+            if ( obj.show && !showing ) {
+                setTimeout(function () {
+                    showing = false;
+                }, 430);
+
+                $(element).modal("show");
+            } else if ( !obj.show && !hiding ) {
+                setTimeout(function () {
+                    if ( !obj.show ) {
+                        hiding = false;
+                    }
+                }, 430);
+
+                $(element).modal("hide").modal("hide dimmer");
+            } else {
+                console.log("fake", showing, hiding);
+            }
+        });
+
+        // hackish way to set our initial subscription
+        //_fake.showSubscription;
+
+        // we need our own onHide and onShow methods to make sure
+        // our observable stays in check
+        context.onShow = function () {
+            console.log("onshow", showing, hiding);
+            showing = true;
+            obj.show = true;
+        };
+        context.onHide = function () {
+            console.log("onhide", showing, hiding);
+            hiding = true;
+            obj.show = false;
+        };
+
+        var innerBindingContext = bindingContext.createChildContext(context);
+
+        // not sure if this is even possible with Knockout-ES5
+        // but I suppose they could still use ko.observable(thingImPassingToModalParam)
+        ko.applyBindingsToDescendants(innerBindingContext, element);
+
+        $(element).modal(context);
+
+
+        return { controlsDescendantBindings: true };
+
     }, makeRealNode: function (node, attributes) {
         var modal, data = node.getAttribute("data");
 
@@ -185,7 +182,7 @@ module.exports = {
     }
 };
 
-},{"../classes/action.js":6,"../utils.js":11,"fs":1}],4:[function(require,module,exports){
+},{"../classes":6,"../utils.js":10,"fs":1}],4:[function(require,module,exports){
 var fs = require('fs');
 var template = "<!-- ko foreach: data -->\n<!-- ko if: $parent.disabled -->\n\n<div class=\"step\" data-bind=\"text: $data,\n    css: {\n        active: $parent.active === $index() || $parent.active === $data,\n        disabled: $parent.active !== $index() && $parent.active !== $data\n    }\"></div>\n<!-- /ko -->\n<!-- ko ifnot: $parent.disabled -->\n<div class=\"step\" data-bind=\"text: $data,\n    css: { active: $parent.active === $index() || $parent.active === $data },\n    click: function(){ typeof $parent.active === 'number' ? $parent.active = $index() : $parent.active = $data }\"></div>\n<!-- /ko -->\n\n<!-- /ko -->";
 
@@ -234,7 +231,7 @@ var binding = {
 };
 
 module.exports = binding;
-},{"../utils":11,"fs":1}],5:[function(require,module,exports){
+},{"../utils":10,"fs":1}],5:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
@@ -295,40 +292,42 @@ module.exports = {
     }
 };
 
-},{"../utils":11}],6:[function(require,module,exports){
+},{"../utils":10}],6:[function(require,module,exports){
+function Steps(obj) {
+    ko.utils.extend(this, obj);
+    ko.track(this);
+}
+
 /**
- * An action.  Call action.do to do the action.
+ * An action.  Call action.go to do the action.
  * @param {String} name
  * @param {Function} callback
+ * @param {String} icon an icon name, which will be rendered with the action (where applicable)
  * @constructor
  */
-function Action(name, callback) {
+function Action(name, callback, icon) {
     var self = this;
 
     self.name = name;
     self.callback = callback || $.noop;
 
-    self.go = function(){
+    self.go = function () {
         self.callback.apply(self, arguments);
     };
 }
 
-module.exports = Action;
+module.exports = {
+    Action: Action,
+    Steps: Steps
+};
 },{}],7:[function(require,module,exports){
-function Steps(obj){
-    ko.utils.extend(this, obj);
-    ko.track(this);
-}
-
-module.exports = Steps;
-},{}],8:[function(require,module,exports){
 
 var config = {
     namespace: "sui-"
 }
 
 module.exports = config;
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 // Load up our binding handlers
 var bindingHandlers = window.ko.bindingHandlers;
 bindingHandlers["toggle"] = require("./bindings/toggle");
@@ -338,20 +337,21 @@ bindingHandlers["modal"] = require("./bindings/modal");
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");
 
-var previousSemantic = window.semantic;
+var previousNamespace = window.sui;
 
-module.exports = {
-    /* not sure what other libs use the 'semantic' global, but it's good practice */
-    noConflict: function(){
-        window["semantic"] = previousSemantic;
-        return module.exports;
-    }
+module.exports = require("./classes");
+
+/* not sure what other libs use the 'semantic' global, but it's good practice */
+module.exports.noConflict = function () {
+    window["semantic"] = previousNamespace;
+    return module.exports;
 };
 
-if (typeof window !== "undefined") {
-    window["semantic"] = module.exports;
+if ( typeof window !== "undefined" ) {
+    window.sui = module.exports;
 }
-},{"./bindings/modal":3,"./bindings/steps":4,"./bindings/toggle":5,"./suiBindingProvider.js":10}],10:[function(require,module,exports){
+
+},{"./bindings/modal":3,"./bindings/steps":4,"./bindings/toggle":5,"./classes":6,"./suiBindingProvider.js":9}],9:[function(require,module,exports){
 var config = require("./config");
 
 /* --- Namespace binding provider ---
@@ -465,7 +465,7 @@ NamespaceBindingProvider.prototype = bpInstance;
 
 var nsProvider = new NamespaceBindingProvider();
 bpInstance.others.push(nsProvider.preprocessNode.bind(nsProvider));
-},{"./config":8}],11:[function(require,module,exports){
+},{"./config":7}],10:[function(require,module,exports){
 module.exports = {
     byIndexOrName: function(index, array) {
         if (!isNaN(parseInt(index))) {
@@ -502,5 +502,5 @@ module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,5,7,6,8,9,10,11])
+},{}]},{},[2,3,4,5,6,7,8,9,10])
 ;

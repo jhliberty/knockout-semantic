@@ -21,7 +21,14 @@ function Action(name, callback, icon) {
     };
 }
 
+function Toggle(initial){
+    this.on = initial || false;
+    ko.track(this);
+}
+
+
 module.exports = {
     Action: Action,
-    Steps: Steps
+    Steps: Steps,
+    Toggle: Toggle
 };

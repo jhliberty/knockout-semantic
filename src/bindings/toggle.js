@@ -42,14 +42,14 @@ module.exports = {
 
 
         toggle = document.createElement("div");
-
-        toggle.className = "ui toggle button";
+        toggle.className = utils.mergeClasses("ui toggle button", node, toggle);
 
         toggle.setAttribute("data-bind", utils.hashToBindingString({
             toggle: data,
             text: node.getAttribute("text")
         }));
 
+        // preserve a text node if one exists
         if (node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE) {
             toggle.appendChild(node.childNodes[0]);
         }

@@ -30,15 +30,11 @@ var binding = {
 
         steps = document.createElement("div");
 
-        steps.className = "ui steps";
+        utils.mergeClasses("ui steps", node, steps);
 
         steps.setAttribute("data-bind", utils.hashToBindingString({
             steps: data
         }));
-
-        if ( node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
-            steps.appendChild(node.childNodes[0]);
-        }
 
         return steps;
     }
