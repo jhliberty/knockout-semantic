@@ -11,9 +11,9 @@ module.exports = {
 
         // if we have our own buttons config, we don't want to
         // have Semantic-UI hide when a button is pressed
-        if ( settings.buttons ) {
+        if ( obj.buttons ) {
             // Some nonexistent element
-            settings.selector = "#fake-" + new Date().getTime();
+            obj.selector = "#fake-" + new Date().getTime();
         }
 
         var context = ko.utils.extend({
