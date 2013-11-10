@@ -1,8 +1,8 @@
 var utils = require("../utils");
 
 module.exports = {
-    init: function popupBinding(element, valueAccessor) {
-        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, viewModel);
+    init: function popupBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
 
         var updatePopup = function () {
             var data = obs();

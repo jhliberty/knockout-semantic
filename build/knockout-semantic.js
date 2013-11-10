@@ -11,9 +11,9 @@ var template = "<input type=\"hidden\" />\r\n<div class=\"default text\" data-bi
 
 module.exports = {
     init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        var $el = $(element), suppressUpdate, dsadasdads;
+        var $el = $(element), suppressUpdate;
 
-        var obs = utils.getBindingObservable(valueAccessor, viewModel),
+        var obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData),
             selectedObservable = utils.getBindingObservable('selected', obs());
 
         var updateSelection = function () {
@@ -64,7 +64,7 @@ module.exports = {
     preprocess: utils.preprocess
 };
 
-},{"../utils":11,"fs":1}],3:[function(require,module,exports){
+},{"../utils":12,"fs":1}],3:[function(require,module,exports){
 var fs = require('fs');
 var template = "<i class=\"close icon\"></i>\r\n<div class=\"header\" data-bind=\"text: title\">\r\n\r\n</div>\r\n<div class=\"content\" data-bind=\"html: content\">\r\n    <div class=\"left\">\r\n        Content can appear on left\r\n    </div>\r\n    <div class=\"right\">\r\n        Content can appear on right\r\n    </div>\r\n</div>\r\n<div class=\"actions\" data-bind=\"foreach: buttons\">\r\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\r\n</div>";
 var Action = require("../classes").Action;
@@ -162,28 +162,18 @@ module.exports = {
 
         return { controlsDescendantBindings: true };
 
-    }, makeRealNode: function (node, attributes) {
-        var modal, data = node.getAttribute("data");
-
-        if (!data) {
-            return {required: "data"};
-        }
-
-        modal = document.createElement("div");
-        modal.className = "ui modal";
-
-        modal.setAttribute("data-bind", utils.hashToBindingString({ modal: data}));
-
-        return modal;
-    }
+    },
+    makeRealNode: utils.makeRealNode({
+        classes: "ui modal"
+    }),
+    preprocess: utils.preprocess
 };
-
-},{"../classes":7,"../utils.js":11,"fs":1}],4:[function(require,module,exports){
+},{"../classes":8,"../utils.js":12,"fs":1}],4:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
-    init: function popupBinding(element, valueAccessor) {
-        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, viewModel);
+    init: function popupBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
 
         var updatePopup = function () {
             var data = obs();
@@ -209,7 +199,7 @@ module.exports = {
 }
 ;
 
-},{"../utils":11}],5:[function(require,module,exports){
+},{"../utils":12}],5:[function(require,module,exports){
 var fs = require('fs');
 var template = "<!-- ko foreach: data -->\r\n<!-- ko if: $parent.disabled -->\r\n\r\n<div class=\"step\" data-bind=\"text: $data,\r\n    css: {\r\n        active: $parent.active === $index() || $parent.active === $data,\r\n        disabled: $parent.active !== $index() && $parent.active !== $data\r\n    }\"></div>\r\n<!-- /ko -->\r\n<!-- ko ifnot: $parent.disabled -->\r\n<div class=\"step\" data-bind=\"text: $data,\r\n    css: { active: $parent.active === $index() || $parent.active === $data },\r\n    click: function(){ typeof $parent.active === 'number' ? $parent.active = $index() : $parent.active = $data }\"></div>\r\n<!-- /ko -->\r\n\r\n<!-- /ko -->";
 
@@ -254,12 +244,52 @@ var binding = {
 };
 
 module.exports = binding;
-},{"../utils":11,"fs":1}],6:[function(require,module,exports){
+},{"../utils":12,"fs":1}],6:[function(require,module,exports){
+var __dirname="/bindings";var utils = require("../utils");
+var template = fs.readFileSync(__dirname + "/templates/table.html");
+
+
+module.exports = {
+    init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
+
+        // Toggle the observable on click
+        $(element).click(function () {
+            obs(!ko.unwrap(obs))
+        });
+
+        var updateClass = function () {
+            // if we set it to true, add the "active" class
+            if (obs()) {
+                $el.addClass('active');
+            }
+
+            // otherwise, remove it
+            else {
+                $el.removeClass('active');
+            }
+        };
+
+        // watch for changes
+        obs.subscribe(updateClass);
+
+        // invoke immediately to get the initial class correct
+        updateClass();
+    },
+    makeRealNode: utils.makeRealNode({
+        classes: "ui table",
+        tag: "table"
+    }),
+    preprocess: utils.preprocess
+};
+
+
+},{"../utils":12}],7:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
-    init: function toggleBinding(element, valueAccessor) {
-        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, viewModel);
+    init: function toggleBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
 
         // Toggle the observable on click
         $(element).click(function () {
@@ -290,7 +320,7 @@ module.exports = {
     preprocess: utils.preprocess
 };
 
-},{"../utils":11}],7:[function(require,module,exports){
+},{"../utils":12}],8:[function(require,module,exports){
 /**
  * @constructor
  */
@@ -344,13 +374,13 @@ module.exports = {
     Dropdown: Dropdown,
     utils: require('./utils')
 };
-},{"./utils":11}],8:[function(require,module,exports){
+},{"./utils":12}],9:[function(require,module,exports){
 var config = {
     namespace: "s-"
 }
 
 module.exports = config;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 // Load up our binding handlers
 var bindingHandlers = window.ko.bindingHandlers;
 bindingHandlers["toggle"] = require("./bindings/toggle");
@@ -381,7 +411,7 @@ if (typeof window !== "undefined") {
     window.sui = module.exports;
 }
 
-},{"./bindings/dropdown":2,"./bindings/modal":3,"./bindings/popup":4,"./bindings/steps":5,"./bindings/toggle":6,"./classes":7,"./suiBindingProvider.js":10}],10:[function(require,module,exports){
+},{"./bindings/dropdown":2,"./bindings/modal":3,"./bindings/popup":4,"./bindings/steps":5,"./bindings/toggle":7,"./classes":8,"./suiBindingProvider.js":11}],11:[function(require,module,exports){
 var config = require("./config");
 
 var NamespaceBindingProvider = function () {
@@ -471,7 +501,7 @@ NamespaceBindingProvider.prototype = bpInstance;
 
 var nsProvider = new NamespaceBindingProvider();
 bpInstance.others.push(nsProvider.preprocessNode.bind(nsProvider));
-},{"./config":8}],11:[function(require,module,exports){
+},{"./config":9}],12:[function(require,module,exports){
 var utils = module.exports = {
     byIndexOrName: function (index, array) {
         if (!isNaN(parseInt(index))) {
@@ -527,7 +557,7 @@ var utils = module.exports = {
         return function (node) {
             var newElement, i, attrs = node.attributes;
 
-            newElement = document.createElement("div");
+            newElement = document.createElement(settings.tag || "div");
 
             utils.mergeClasses(settings.classes, node, newElement);
 
@@ -603,5 +633,5 @@ var utils = module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,6,5,9,8,10,7,11])
+},{}]},{},[2,3,4,6,5,7,8,9,10,11,12])
 ;

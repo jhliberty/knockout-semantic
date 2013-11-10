@@ -3,8 +3,8 @@ var template = fs.readFileSync(__dirname + "/templates/table.html");
 
 
 module.exports = {
-    init: function tableBinding(element, valueAccessor) {
-        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, viewModel);
+    init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
 
         // Toggle the observable on click
         $(element).click(function () {

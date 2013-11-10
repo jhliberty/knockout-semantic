@@ -4,9 +4,9 @@ var template = fs.readFileSync(__dirname + "/templates/dropdown.html");
 
 module.exports = {
     init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        var $el = $(element), suppressUpdate, dsadasdads;
+        var $el = $(element), suppressUpdate;
 
-        var obs = utils.getBindingObservable(valueAccessor, viewModel),
+        var obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData),
             selectedObservable = utils.getBindingObservable('selected', obs());
 
         var updateSelection = function () {

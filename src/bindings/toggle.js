@@ -1,8 +1,8 @@
 var utils = require("../utils");
 
 module.exports = {
-    init: function toggleBinding(element, valueAccessor) {
-        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, viewModel);
+    init: function toggleBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
 
         // Toggle the observable on click
         $(element).click(function () {
