@@ -24,7 +24,7 @@ var binding = {
     makeRealNode: function (node, attributes) {
         var steps, data = node.getAttribute("data");
 
-        if ( !data ) {
+        if (!data) {
             return {required: "data"};
         }
 

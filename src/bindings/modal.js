@@ -11,7 +11,7 @@ module.exports = {
 
         // if we have our own buttons config, we don't want to
         // have Semantic-UI hide when a button is pressed
-        if ( obj.buttons ) {
+        if (obj.buttons) {
             // Some nonexistent element
             obj.selector = "#fake-" + new Date().getTime();
         }
@@ -39,7 +39,7 @@ module.exports = {
 
         // check if there are children
         // if so, we don't want to delete them
-        if ( element.children.length === 0 ) {
+        if (element.children.length === 0) {
             // load our module template
             element.innerHTML = template;
         }
@@ -52,15 +52,15 @@ module.exports = {
 
             // We don't want these to fire if we're in the process
             // of showing or hiding already
-            if ( obj.show && !showing ) {
+            if (obj.show && !showing) {
                 setTimeout(function () {
                     showing = false;
                 }, 430);
 
                 $(element).modal("show");
-            } else if ( !obj.show && !hiding ) {
+            } else if (!obj.show && !hiding) {
                 setTimeout(function () {
-                    if ( !obj.show ) {
+                    if (!obj.show) {
                         hiding = false;
                     }
                 }, 430);
@@ -95,18 +95,9 @@ module.exports = {
 
         return { controlsDescendantBindings: true };
 
-    }, makeRealNode: function (node, attributes) {
-        var modal, data = node.getAttribute("data");
-
-        if ( !data ) {
-            return {required: "data"};
-        }
-
-        modal = document.createElement("div");
-        modal.className = "ui modal";
-
-        modal.setAttribute("data-bind", utils.hashToBindingString({ modal: data}));
-
-        return modal;
-    }
+    },
+    makeRealNode: utils.makeRealNode({
+        classes: "ui modal"
+    }),
+    preprocess: utils.preprocess
 };

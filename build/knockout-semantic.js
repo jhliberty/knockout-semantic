@@ -7,18 +7,19 @@
 },{}],2:[function(require,module,exports){
 var utils = require("../utils");
 var fs = require('fs');
-var template = "<input type=\"hidden\">\n<i class=\"dropdown icon\"></i>\n<div class=\"default text\" data-bind=\"text: context.text || context.selected || context.defaultText\"></div>\n<div class=\"menu\" data-bind=\"foreach: context.data\">\n    <!-- ko if: $data.go -->\n        <div class=\"item\" data-bind=\"click: $data.go\">\n            <!-- ko if: $data.icon -->\n                <i data-bind=\"attr: {'class': 'icon ' + $data.icon}\"></i>\n            <!-- /ko -->\n            <!-- ko text: $data.name --><!-- /ko -->\n        </div>\n    <!-- /ko -->\n    <!-- ko ifnot: $data.go -->\n    <div class=\"item\" data-bind=\"text: $data\"></div>\n    <!-- /ko -->\n</div>\n<!--\ncontext.data[$index() | 0]-->\n";
+var template = "<input type=\"hidden\" />\r\n<div class=\"default text\" data-bind=\"text: context.text || context.selected || context.defaultText\"></div>\r\n<i class=\"dropdown icon\"></i>\r\n<div class=\"menu\" data-bind=\"foreach: context.options\">\r\n    <!-- ko if: typeof $data === \"object\" -->\r\n    <div class=\"item\" data-bind=\"click: $data.go || $.noop\">\r\n        <!-- ko if: $data.icon -->\r\n        <i data-bind=\"attr: {'class': 'icon ' + $data.icon}\"></i>\r\n        <!-- /ko -->\r\n        <!-- ko text: $data.text --><!-- /ko -->\r\n    </div>\r\n    <!-- /ko -->\r\n    <!-- ko if: typeof $data === \"string\" -->\r\n    <div class=\"item\" data-bind=\"text: $rawData\"></div>\r\n    <!-- /ko -->\r\n</div>\r\n<!--\r\ncontext.data[$index() | 0]-->\r\n";
 
 module.exports = {
     init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        var $el = $(element), obj = valueAccessor(), suppressUpdate;
+        var $el = $(element), suppressUpdate, dsadasdads;
 
-        console.log("initiating dropdown");
+        var obs = utils.getBindingObservable(valueAccessor, viewModel),
+            selectedObservable = utils.getBindingObservable('selected', obs());
 
         var updateSelection = function () {
-            var selected = obj.selected;
+            var selected = selectedObservable();
 
-            if ( suppressUpdate ) {
+            if (suppressUpdate) {
                 suppressUpdate = false;
             } else {
                 suppressUpdate = true;
@@ -27,27 +28,22 @@ module.exports = {
         };
 
         // watch for changes
-        var selectedObservable = ko.getObservable(obj, 'selected');
+        console.log(selectedObservable, selectedObservable());
 
-        if ( selectedObservable == null ) {
-            ko.track(obj);
-            selectedObservable = ko.getObservable(obj, 'selected');
-        }
-
+        var obj = obs();
         obj.defaultText = obj.defaultText || element.textContent || "";
 
 
         selectedObservable.subscribe(updateSelection);
 
         // apply the template
-        element.innerHTML = template;
+        if (element.childNodes.length === 0) {
+            element.innerHTML = template;
+        }
 
         var innerBindingContext = bindingContext.createChildContext({
             context: obj
         });
-
-        // not sure if this is even possible with Knockout-ES5
-        // but I suppose they could still use ko.observable(thingImPassingToModalParam)
 
         ko.applyBindingsToDescendants(innerBindingContext, element);
         // invoke immediately to get the initial selection
@@ -55,44 +51,22 @@ module.exports = {
 
         $el.dropdown({
             onChange: function (value, text) {
-
-                if ( suppressUpdate ) {
-                    suppressUpdate = false;
-                } else {
-                    suppressUpdate = true;
-                    obj.selected = text;
-                }
+                suppressUpdate = true;
+                selectedObservable(text);
             }
         });
 
         return { controlsDescendantBindings: true };
     },
-    makeRealNode: function (node) {
-        var dropdown, data = node.getAttribute("data");
-
-        if ( !data ) {
-            return {required: "data"};
-        }
-        dropdown = document.createElement("div");
-
-        utils.mergeClasses("ui dropdown", node, dropdown);
-
-        dropdown.setAttribute("data-bind", utils.hashToBindingString({
-            dropdown: data
-        }));
-
-        // Preserve the text node if one exists
-        if ( node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
-            dropdown.appendChild(node.childNodes[0]);
-        }
-
-        return dropdown;
-    }
+    makeRealNode: utils.makeRealNode({
+        classes: "ui selection dropdown"
+    }),
+    preprocess: utils.preprocess
 };
 
-},{"../utils":10,"fs":1}],3:[function(require,module,exports){
+},{"../utils":11,"fs":1}],3:[function(require,module,exports){
 var fs = require('fs');
-var template = "<i class=\"close icon\"></i>\n<div class=\"header\" data-bind=\"text: title\">\n\n</div>\n<div class=\"content\" data-bind=\"html: content\">\n    <div class=\"left\">\n        Content can appear on left\n    </div>\n    <div class=\"right\">\n        Content can appear on right\n    </div>\n</div>\n<div class=\"actions\" data-bind=\"foreach: buttons\">\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\n</div>";
+var template = "<i class=\"close icon\"></i>\r\n<div class=\"header\" data-bind=\"text: title\">\r\n\r\n</div>\r\n<div class=\"content\" data-bind=\"html: content\">\r\n    <div class=\"left\">\r\n        Content can appear on left\r\n    </div>\r\n    <div class=\"right\">\r\n        Content can appear on right\r\n    </div>\r\n</div>\r\n<div class=\"actions\" data-bind=\"foreach: buttons\">\r\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\r\n</div>";
 var Action = require("../classes").Action;
 var utils = require("../utils.js");
 
@@ -104,7 +78,7 @@ module.exports = {
 
         // if we have our own buttons config, we don't want to
         // have Semantic-UI hide when a button is pressed
-        if ( obj.buttons ) {
+        if (obj.buttons) {
             // Some nonexistent element
             obj.selector = "#fake-" + new Date().getTime();
         }
@@ -132,7 +106,7 @@ module.exports = {
 
         // check if there are children
         // if so, we don't want to delete them
-        if ( element.children.length === 0 ) {
+        if (element.children.length === 0) {
             // load our module template
             element.innerHTML = template;
         }
@@ -145,15 +119,15 @@ module.exports = {
 
             // We don't want these to fire if we're in the process
             // of showing or hiding already
-            if ( obj.show && !showing ) {
+            if (obj.show && !showing) {
                 setTimeout(function () {
                     showing = false;
                 }, 430);
 
                 $(element).modal("show");
-            } else if ( !obj.show && !hiding ) {
+            } else if (!obj.show && !hiding) {
                 setTimeout(function () {
-                    if ( !obj.show ) {
+                    if (!obj.show) {
                         hiding = false;
                     }
                 }, 430);
@@ -191,7 +165,7 @@ module.exports = {
     }, makeRealNode: function (node, attributes) {
         var modal, data = node.getAttribute("data");
 
-        if ( !data ) {
+        if (!data) {
             return {required: "data"};
         }
 
@@ -204,9 +178,40 @@ module.exports = {
     }
 };
 
-},{"../classes":6,"../utils.js":10,"fs":1}],4:[function(require,module,exports){
+},{"../classes":7,"../utils.js":11,"fs":1}],4:[function(require,module,exports){
+var utils = require("../utils");
+
+module.exports = {
+    init: function popupBinding(element, valueAccessor) {
+        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, viewModel);
+
+        var updatePopup = function () {
+            var data = obs();
+
+            if (typeof data === "string") {
+                $el.popup({
+                    content: data
+                });
+            }
+            else if (data) {
+                $el.popup(data);
+            }
+        };
+
+// watch for changes
+        obs.subscribe(updatePopup);
+
+// invoke immediately to get the initial class correct
+        updatePopup();
+    },
+    makeRealNode: utils.makeRealNode({}),
+    preprocess: utils.preprocess
+}
+;
+
+},{"../utils":11}],5:[function(require,module,exports){
 var fs = require('fs');
-var template = "<!-- ko foreach: data -->\n<!-- ko if: $parent.disabled -->\n\n<div class=\"step\" data-bind=\"text: $data,\n    css: {\n        active: $parent.active === $index() || $parent.active === $data,\n        disabled: $parent.active !== $index() && $parent.active !== $data\n    }\"></div>\n<!-- /ko -->\n<!-- ko ifnot: $parent.disabled -->\n<div class=\"step\" data-bind=\"text: $data,\n    css: { active: $parent.active === $index() || $parent.active === $data },\n    click: function(){ typeof $parent.active === 'number' ? $parent.active = $index() : $parent.active = $data }\"></div>\n<!-- /ko -->\n\n<!-- /ko -->";
+var template = "<!-- ko foreach: data -->\r\n<!-- ko if: $parent.disabled -->\r\n\r\n<div class=\"step\" data-bind=\"text: $data,\r\n    css: {\r\n        active: $parent.active === $index() || $parent.active === $data,\r\n        disabled: $parent.active !== $index() && $parent.active !== $data\r\n    }\"></div>\r\n<!-- /ko -->\r\n<!-- ko ifnot: $parent.disabled -->\r\n<div class=\"step\" data-bind=\"text: $data,\r\n    css: { active: $parent.active === $index() || $parent.active === $data },\r\n    click: function(){ typeof $parent.active === 'number' ? $parent.active = $index() : $parent.active = $data }\"></div>\r\n<!-- /ko -->\r\n\r\n<!-- /ko -->";
 
 var utils = require("../utils");
 
@@ -231,7 +236,7 @@ var binding = {
     makeRealNode: function (node, attributes) {
         var steps, data = node.getAttribute("data");
 
-        if ( !data ) {
+        if (!data) {
             return {required: "data"};
         }
 
@@ -249,25 +254,21 @@ var binding = {
 };
 
 module.exports = binding;
-},{"../utils":10,"fs":1}],5:[function(require,module,exports){
+},{"../utils":11,"fs":1}],6:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
-    init: function toggleBinding(element, valueAccessor){
-        var $el = $(element);
+    init: function toggleBinding(element, valueAccessor) {
+        var $el = $(element), obs = utils.getBindingObservable(valueAccessor, viewModel);
 
         // Toggle the observable on click
-        $(element).click(function(){
-            var obj = valueAccessor();
-
-            // Update the observable (true or false)
-            // this also effects the class change
-            obj.on = !obj.on;
+        $(element).click(function () {
+            obs(!ko.unwrap(obs))
         });
 
-        var updateClass = function(){
+        var updateClass = function () {
             // if we set it to true, add the "active" class
-            if (valueAccessor().on) {
+            if (obs()) {
                 $el.addClass('active');
             }
 
@@ -278,37 +279,18 @@ module.exports = {
         };
 
         // watch for changes
-        ko.getObservable(valueAccessor(), 'on').subscribe(updateClass);
+        obs.subscribe(updateClass);
 
         // invoke immediately to get the initial class correct
         updateClass();
     },
-    makeRealNode: function(node, attributes) {
-        var toggle,
-            data = node.getAttribute("data");
-
-        if (!data) {
-            return {required: "data"};
-        }
-
-        toggle = document.createElement("div");
-        utils.mergeClasses("ui toggle button", node, toggle);
-
-        toggle.setAttribute("data-bind", utils.hashToBindingString({
-            toggle: data,
-            text: node.getAttribute("text")
-        }));
-
-        // preserve a text node if one exists
-        if (node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE) {
-            toggle.appendChild(node.childNodes[0]);
-        }
-
-        return toggle;
-    }
+    makeRealNode: utils.makeRealNode({
+        classes: "ui toggle button"
+    }),
+    preprocess: utils.preprocess
 };
 
-},{"../utils":10}],6:[function(require,module,exports){
+},{"../utils":11}],7:[function(require,module,exports){
 /**
  * @constructor
  */
@@ -359,22 +341,23 @@ module.exports = {
     Action: Action,
     Steps: Steps,
     Toggle: Toggle,
-    Dropdown: Dropdown
+    Dropdown: Dropdown,
+    utils: require('./utils')
 };
-},{}],7:[function(require,module,exports){
-
+},{"./utils":11}],8:[function(require,module,exports){
 var config = {
-    namespace: "sui-"
+    namespace: "s-"
 }
 
 module.exports = config;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // Load up our binding handlers
 var bindingHandlers = window.ko.bindingHandlers;
 bindingHandlers["toggle"] = require("./bindings/toggle");
 bindingHandlers["steps"] = require("./bindings/steps");
 bindingHandlers["modal"] = require("./bindings/modal");
 bindingHandlers["dropdown"] = require("./bindings/dropdown");
+bindingHandlers["popup"] = require("./bindings/popup");
 
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");
@@ -394,43 +377,17 @@ module.exports.noConflict = function () {
     return module.exports;
 };
 
-if ( typeof window !== "undefined" ) {
+if (typeof window !== "undefined") {
     window.sui = module.exports;
 }
 
-},{"./bindings/dropdown":2,"./bindings/modal":3,"./bindings/steps":4,"./bindings/toggle":5,"./classes":6,"./suiBindingProvider.js":9}],9:[function(require,module,exports){
+},{"./bindings/dropdown":2,"./bindings/modal":3,"./bindings/popup":4,"./bindings/steps":5,"./bindings/toggle":6,"./classes":7,"./suiBindingProvider.js":10}],10:[function(require,module,exports){
 var config = require("./config");
 
-/* --- Namespace binding provider ---
- Allows <namespace:bindingHandler data="foo" /> to be replaced by
-  a bindngHandler which implements makeRealNode
-
-  simple example:
-
-  ko.bindingHandlers.text.makeRealNode = function (node, attributes) {
-      data = node.getAttribute("data");
-
-      if (!data) {
-        return {required: "data"};
-      }
-
-      var textElement = document.createElement("span");
-      textElement.setAttribute("data-bind", "text: " + data);
-      return textElement;
-  }
-
-  if the namespace is "ko", then this element
-    <ko:text data="foo" />
-  would become
-    <span data-bind="text: foo" />
-
-  actual cases will usually be more complicated
- */
-
-var NamespaceBindingProvider = function() {
+var NamespaceBindingProvider = function () {
     this.constructor = NamespaceBindingProvider;
 
-    this.preprocessNode = function(node) {
+    this.preprocessNode = function (node) {
         // first, let's get out of here if we don't have a node with a tagName
         if (!node.tagName) return;
 
@@ -439,6 +396,7 @@ var NamespaceBindingProvider = function() {
         var tagName = node.tagName.toLowerCase(),
             namespace = config.namespace ? config.namespace.toLowerCase() : "";
 
+        // we only want to do this for element nodes
         if (node.nodeType === Node.ELEMENT_NODE && tagName.indexOf(namespace) === 0) {
             var bindingName = namespace ? tagName.split(namespace)[1] : tagName;
 
@@ -451,10 +409,11 @@ var NamespaceBindingProvider = function() {
             // we should warn developers about this...
             else {
                 window.console && console.log("WARNING: no binding handler " + tagName +
-                    " which implements makeRealNode.  Fix this!");
+                    " which implements makeRealNode.  You may have made a typo.");
                 return;
             }
 
+            // check for errors
             if (result && result.constructor.name === "Object" && result.required) {
 
             }
@@ -485,10 +444,10 @@ if (typeof bpInstance.preprocessNode === "function"
  * calls all other node preprocessors
  * @param {HTMLElement} node the node to process
  */
-bpInstance.preprocessNode = function(node) {
+bpInstance.preprocessNode = function (node) {
     var result;
 
-    ko.utils.arrayForEach(bpInstance.others, function(callback){
+    ko.utils.arrayForEach(bpInstance.others, function (callback) {
         result = callback(node);
 
         // if they explicitly return false, don't do any more processing on this node
@@ -505,16 +464,16 @@ bpInstance.preprocessNode = function(node) {
     });
 }
 
-// set a flag so it's not set again
+// set a flag so it's not set again if this is for some reason executed twice
 bpInstance.preprocessNode._thisIsTheRightOne = true;
 
 NamespaceBindingProvider.prototype = bpInstance;
 
 var nsProvider = new NamespaceBindingProvider();
 bpInstance.others.push(nsProvider.preprocessNode.bind(nsProvider));
-},{"./config":7}],10:[function(require,module,exports){
-module.exports = {
-    byIndexOrName: function(index, array) {
+},{"./config":8}],11:[function(require,module,exports){
+var utils = module.exports = {
+    byIndexOrName: function (index, array) {
         if (!isNaN(parseInt(index))) {
             return parseInt(index);
         }
@@ -522,15 +481,15 @@ module.exports = {
             return array.indexOf(index);
         }
     },
-    hashToBindingString: function(hash) {
+    hashToBindingString: function (hash) {
         var bindings = [];
 
-        ko.utils.objectForEach(hash, function(key, value){
+        ko.utils.objectForEach(hash, function (key, value) {
             if (value != null) {
                 bindings.push(key + ": " + value);
             }
         });
-        return bindings.join(", ").replace(/\\?"/g, "'");
+        return bindings.join(", "); //.replace(/\\?"/g, "'");
     },
     /**
      *
@@ -538,16 +497,111 @@ module.exports = {
      * @param {HTMLElement} source the element to copy classes from
      * @param {HTMLElement} dest the element to assign the new classes to
      */
-    mergeClasses: function(extra, source, dest) {
-        var sourceClasses = source.className;
-        if (sourceClasses) {
-            dest.className = extra + " " + sourceClasses;
+    mergeClasses: function (extra, source, dest) {
+        var classList = [];
+
+        if (source.className) {
+            classList.push(source.className);
+        }
+
+        if (dest.className) {
+            classList.push(dest.className);
+        }
+
+        if (extra) {
+            classList.push(extra);
+        }
+
+        dest.className = classList.join(" ");
+    },
+
+    moveChildren: function (from, to) {
+        var nodes = Array.prototype.slice.call(from.childNodes, 0);
+
+        for (var i = 0; i < nodes.length; i++) {
+            var log = to.appendChild(nodes[i]);
+        }
+    },
+
+    makeRealNode: function (settings) {
+        return function (node) {
+            var newElement, i, attrs = node.attributes;
+
+            newElement = document.createElement("div");
+
+            utils.mergeClasses(settings.classes, node, newElement);
+
+            var dataHash = {};
+
+            for (i = 0; i < attrs.length; i++) {
+                dataHash[attrs[i].name] = attrs[i].value;
+            }
+
+            var data = dataHash.data;
+
+            delete dataHash.data;
+            delete dataHash["class"];
+
+            // move the id
+            if (dataHash.id) {
+                node.removeAttribute("id");
+                newElement.id = dataHash.id;
+                delete dataHash.id;
+            }
+
+            var mainBinding = node.tagName.split("-")[1].toLowerCase();
+            dataHash[mainBinding] = data;
+
+            newElement.setAttribute("data-bind", utils.hashToBindingString(dataHash));
+            utils.moveChildren(node, newElement);
+
+            return newElement;
+        }
+    },
+    getBindingObservable: function (valueAccessor, viewModel) {
+        var value, obs;
+
+        if (typeof valueAccessor === "function") {
+            value = valueAccessor();
         }
         else {
-            dest.className = extra;
+            value = valueAccessor;
+        }
+
+        console.log(value, viewModel);
+
+        // for subproperties, they'll ask for the property directly
+        if (typeof value === "string") {
+            obs = ko.getObservable(viewModel, value);
+            if (ko.isSubscribable(obs)) {
+                return obs;
+            }
+        }
+
+        // did preprocess make our special object?
+        if (typeof value === "object" && value._kosui) {
+            return ko.getObservable(viewModel, value._kosui);
+        }
+
+        // old school observable
+        else if (ko.isSubscribable(value)) {
+            return value;
+        }
+
+        else {
+            return ko.observable(value);
+        }
+
+    },
+    preprocess: function (stringFromBinding) {
+        if (/^\w+$/.test(stringFromBinding)) {
+            return "{ _kosui: '" + stringFromBinding + "'}"
+        }
+        else {
+            return stringFromBinding;
         }
     }
 };
 
-},{}]},{},[2,3,4,5,6,7,8,9,10])
+},{}]},{},[2,3,4,6,5,9,8,10,7,11])
 ;
