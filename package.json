@@ -6,7 +6,9 @@
     "grunt-contrib-jshint": "~0.6.x",
     "grunt-contrib-nodeunit": "~0.2.x",
     "grunt-contrib-uglify": "~0.2.x",
-    "grunt-watchify": "~0.1.x",
-    "brfs": "0.0.X"
+    "brfs": "0.0.x",
+    "grunt-saucelabs": "~4.1.2",
+    "browserify": "~2.35.1",
+    "grunt-browserify": "~1.2.11"
   }
 }

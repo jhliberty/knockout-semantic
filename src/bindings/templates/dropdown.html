@@ -1,17 +1,17 @@
-<input type="hidden">
-<i class="dropdown icon"></i>
+<input type="hidden" />
 <div class="default text" data-bind="text: context.text || context.selected || context.defaultText"></div>
-<div class="menu" data-bind="foreach: context.data">
-    <!-- ko if: $data.go -->
-        <div class="item" data-bind="click: $data.go">
-            <!-- ko if: $data.icon -->
-                <i data-bind="attr: {'class': 'icon ' + $data.icon}"></i>
-            <!-- /ko -->
-            <!-- ko text: $data.name --><!-- /ko -->
-        </div>
+<i class="dropdown icon"></i>
+<div class="menu" data-bind="foreach: context.options">
+    <!-- ko if: typeof $data === "object" -->
+    <div class="item" data-bind="click: $data.go || $.noop">
+        <!-- ko if: $data.icon -->
+        <i data-bind="attr: {'class': 'icon ' + $data.icon}"></i>
+        <!-- /ko -->
+        <!-- ko text: $data.text --><!-- /ko -->
+    </div>
     <!-- /ko -->
-    <!-- ko ifnot: $data.go -->
-    <div class="item" data-bind="text: $data"></div>
+    <!-- ko if: typeof $data === "string" -->
+    <div class="item" data-bind="text: $rawData"></div>
     <!-- /ko -->
 </div>
 <!--

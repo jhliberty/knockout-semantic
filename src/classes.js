@@ -48,5 +48,6 @@ module.exports = {
     Action: Action,
     Steps: Steps,
     Toggle: Toggle,
-    Dropdown: Dropdown
+    Dropdown: Dropdown,
+    utils: require('./utils')
 };

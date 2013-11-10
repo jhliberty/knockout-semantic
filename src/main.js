@@ -4,6 +4,7 @@ bindingHandlers["toggle"] = require("./bindings/toggle");
 bindingHandlers["steps"] = require("./bindings/steps");
 bindingHandlers["modal"] = require("./bindings/modal");
 bindingHandlers["dropdown"] = require("./bindings/dropdown");
+bindingHandlers["popup"] = require("./bindings/popup");
 
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");
@@ -23,6 +24,6 @@ module.exports.noConflict = function () {
     return module.exports;
 };
 
-if ( typeof window !== "undefined" ) {
+if (typeof window !== "undefined") {
     window.sui = module.exports;
 }

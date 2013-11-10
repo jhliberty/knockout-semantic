@@ -4,14 +4,15 @@ var template = fs.readFileSync(__dirname + "/templates/dropdown.html");
 
 module.exports = {
     init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        var $el = $(element), obj = valueAccessor(), suppressUpdate;
+        var $el = $(element), suppressUpdate, dsadasdads;
 
-        console.log("initiating dropdown");
+        var obs = utils.getBindingObservable(valueAccessor, viewModel),
+            selectedObservable = utils.getBindingObservable('selected', obs());
 
         var updateSelection = function () {
-            var selected = obj.selected;
+            var selected = selectedObservable();
 
-            if ( suppressUpdate ) {
+            if (suppressUpdate) {
                 suppressUpdate = false;
             } else {
                 suppressUpdate = true;
@@ -20,27 +21,22 @@ module.exports = {
         };
 
         // watch for changes
-        var selectedObservable = ko.getObservable(obj, 'selected');
+        console.log(selectedObservable, selectedObservable());
 
-        if ( selectedObservable == null ) {
-            ko.track(obj);
-            selectedObservable = ko.getObservable(obj, 'selected');
-        }
-
+        var obj = obs();
         obj.defaultText = obj.defaultText || element.textContent || "";
 
 
         selectedObservable.subscribe(updateSelection);
 
         // apply the template
-        element.innerHTML = template;
+        if (element.childNodes.length === 0) {
+            element.innerHTML = template;
+        }
 
         var innerBindingContext = bindingContext.createChildContext({
             context: obj
         });
-
-        // not sure if this is even possible with Knockout-ES5
-        // but I suppose they could still use ko.observable(thingImPassingToModalParam)
 
         ko.applyBindingsToDescendants(innerBindingContext, element);
         // invoke immediately to get the initial selection
@@ -48,37 +44,15 @@ module.exports = {
 
         $el.dropdown({
             onChange: function (value, text) {
-
-                if ( suppressUpdate ) {
-                    suppressUpdate = false;
-                } else {
-                    suppressUpdate = true;
-                    obj.selected = text;
-                }
+                suppressUpdate = true;
+                selectedObservable(text);
             }
         });
 
         return { controlsDescendantBindings: true };
     },
-    makeRealNode: function (node) {
-        var dropdown, data = node.getAttribute("data");
-
-        if ( !data ) {
-            return {required: "data"};
-        }
-        dropdown = document.createElement("div");
-
-        utils.mergeClasses("ui dropdown", node, dropdown);
-
-        dropdown.setAttribute("data-bind", utils.hashToBindingString({
-            dropdown: data
-        }));
-
-        // Preserve the text node if one exists
-        if ( node.childNodes[0] && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
-            dropdown.appendChild(node.childNodes[0]);
-        }
-
-        return dropdown;
-    }
+    makeRealNode: utils.makeRealNode({
+        classes: "ui selection dropdown"
+    }),
+    preprocess: utils.preprocess
 };

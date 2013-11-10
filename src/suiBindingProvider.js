@@ -1,35 +1,9 @@
 var config = require("./config");
 
-/* --- Namespace binding provider ---
- Allows <namespace:bindingHandler data="foo" /> to be replaced by
-  a bindngHandler which implements makeRealNode
-
-  simple example:
-
-  ko.bindingHandlers.text.makeRealNode = function (node, attributes) {
-      data = node.getAttribute("data");
-
-      if (!data) {
-        return {required: "data"};
-      }
-
-      var textElement = document.createElement("span");
-      textElement.setAttribute("data-bind", "text: " + data);
-      return textElement;
-  }
-
-  if the namespace is "ko", then this element
-    <ko:text data="foo" />
-  would become
-    <span data-bind="text: foo" />
-
-  actual cases will usually be more complicated
- */
-
-var NamespaceBindingProvider = function() {
+var NamespaceBindingProvider = function () {
     this.constructor = NamespaceBindingProvider;
 
-    this.preprocessNode = function(node) {
+    this.preprocessNode = function (node) {
         // first, let's get out of here if we don't have a node with a tagName
         if (!node.tagName) return;
 
@@ -38,6 +12,7 @@ var NamespaceBindingProvider = function() {
         var tagName = node.tagName.toLowerCase(),
             namespace = config.namespace ? config.namespace.toLowerCase() : "";
 
+        // we only want to do this for element nodes
         if (node.nodeType === Node.ELEMENT_NODE && tagName.indexOf(namespace) === 0) {
             var bindingName = namespace ? tagName.split(namespace)[1] : tagName;
 
@@ -50,10 +25,11 @@ var NamespaceBindingProvider = function() {
             // we should warn developers about this...
             else {
                 window.console && console.log("WARNING: no binding handler " + tagName +
-                    " which implements makeRealNode.  Fix this!");
+                    " which implements makeRealNode.  You may have made a typo.");
                 return;
             }
 
+            // check for errors
             if (result && result.constructor.name === "Object" && result.required) {
 
             }
@@ -84,10 +60,10 @@ if (typeof bpInstance.preprocessNode === "function"
  * calls all other node preprocessors
  * @param {HTMLElement} node the node to process
  */
-bpInstance.preprocessNode = function(node) {
+bpInstance.preprocessNode = function (node) {
     var result;
 
-    ko.utils.arrayForEach(bpInstance.others, function(callback){
+    ko.utils.arrayForEach(bpInstance.others, function (callback) {
         result = callback(node);
 
         // if they explicitly return false, don't do any more processing on this node
@@ -104,7 +80,7 @@ bpInstance.preprocessNode = function(node) {
     });
 }
 
-// set a flag so it's not set again
+// set a flag so it's not set again if this is for some reason executed twice
 bpInstance.preprocessNode._thisIsTheRightOne = true;
 
 NamespaceBindingProvider.prototype = bpInstance;

@@ -2,25 +2,21 @@
 
 module.exports = function(grunt) {
     grunt.initConfig({
-        watchify: {
-            basic: {
+        browserify: {
+            dist: {
                 src: './src/**/*.js',
                 dest: 'build/knockout-semantic.js',
                 options: {
-                    callback: function(b) {
-                        b.require('./src/main.js', {
-                            /*expose: 'semantic'*/
-                        });
-                        b.transform('brfs');
-                        console.warn("Built.");
-                        return b;
-                    },
-                    keepalive: true
+                    transform: ["brfs"]
                 }
             }
         }
     });
-    grunt.loadNpmTasks('grunt-watchify');
 
-    grunt.registerTask('default', ['watchify']);
+    // Loading dependencies
+    for (var key in grunt.file.readJSON("package.json").devDependencies) {
+        if (key !== "grunt" && key.indexOf("grunt") === 0) grunt.loadNpmTasks(key);
+    }
+
+    grunt.registerTask('default', ['browserify']);
 };

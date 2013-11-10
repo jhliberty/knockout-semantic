@@ -1,6 +1,5 @@
-
 var config = {
-    namespace: "sui-"
+    namespace: "s-"
 }
 
 module.exports = config;
