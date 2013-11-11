@@ -21,8 +21,6 @@ module.exports = {
         };
 
         // watch for changes
-        console.log(selectedObservable, selectedObservable());
-
         var obj = obs();
         obj.defaultText = obj.defaultText || element.textContent || "";
 
@@ -30,9 +28,7 @@ module.exports = {
         selectedObservable.subscribe(updateSelection);
 
         // apply the template
-        if (element.childNodes.length === 0) {
-            element.innerHTML = template;
-        }
+        utils.applyTemplateIfNoChildren(element, template);
 
         var innerBindingContext = bindingContext.createChildContext({
             context: obj

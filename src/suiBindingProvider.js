@@ -24,7 +24,7 @@ var NamespaceBindingProvider = function () {
             // they tried to use an element which is now just sitting in the dom
             // we should warn developers about this...
             else {
-                window.console && console.log("WARNING: no binding handler " + tagName +
+                window.console && console.warn("WARNING: no binding handler " + tagName +
                     " which implements makeRealNode.  You may have made a typo.");
                 return;
             }

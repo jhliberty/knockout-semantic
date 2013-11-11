@@ -43,8 +43,18 @@
         </div>
 
         <div class="ui segment">
-            Step 2: Shake hands <i class="help icon" data-bind="popup: {title: 'Common Practice', content: 'Use your right hand', inline: false}"></i>
+            Step 2: Shake hands <i class="help icon"
+                                   data-bind="popup: {title: 'Common Practice', content: 'Use your right hand', inline: false}"></i>
         </div>
+
+
+        <p>Simple Table</p>
+
+        <s-table data="simpleTable" class="blue celled segment"></s-table>
+
+        <p>Table With Headers</p>
+
+        <s-table data="table" class="blue celled segment"></s-table>
     </div>
 </div>
 
@@ -54,7 +64,22 @@
         sex: ko.track({
             options: ["Male", "Female"],
             selected: "Male"
-        })
+        }),
+        table: {
+            head: ["Name", "Position"],
+            rows: [
+                ["John", "Janitor"],
+                ["Mike", "IT"],
+                ["Paul", "HR"],
+                ["Rick", "Coffee Fetcher"]
+            ]
+        },
+        simpleTable: [
+            ["John", "Janitor"],
+            ["Mike", "IT"],
+            ["Paul", "HR"],
+            ["Rick", "Coffee Fetcher"]
+        ]
     };
 
     ko.track(viewModel);

@@ -28,8 +28,6 @@ module.exports = {
         };
 
         // watch for changes
-        console.log(selectedObservable, selectedObservable());
-
         var obj = obs();
         obj.defaultText = obj.defaultText || element.textContent || "";
 
@@ -37,9 +35,7 @@ module.exports = {
         selectedObservable.subscribe(updateSelection);
 
         // apply the template
-        if (element.childNodes.length === 0) {
-            element.innerHTML = template;
-        }
+        utils.applyTemplateIfNoChildren(element, template);
 
         var innerBindingContext = bindingContext.createChildContext({
             context: obj
@@ -104,12 +100,7 @@ module.exports = {
         ko.cleanNode(element);
 
 
-        // check if there are children
-        // if so, we don't want to delete them
-        if (element.children.length === 0) {
-            // load our module template
-            element.innerHTML = template;
-        }
+        utils.applyTemplateIfNoChildren(element, template);
 
         var observable = ko.getObservable(obj, "show");
 
@@ -245,36 +236,41 @@ var binding = {
 
 module.exports = binding;
 },{"../utils":12,"fs":1}],6:[function(require,module,exports){
-var __dirname="/bindings";var utils = require("../utils");
-var template = fs.readFileSync(__dirname + "/templates/table.html");
+var utils = require("../utils");
+var fs = require('fs');
+var template = "<!-- ko if: head && head.length -->\r\n<thead>\r\n<tr data-bind=\"foreach: head\">\r\n    <th data-bind=\"text: $rawData\"></th>\r\n</tr>\r\n</thead>\r\n<!-- /ko -->\r\n\r\n<tbody data-bind=\"foreach: rows\">\r\n<tr data-bind=\"foreach: $rawData\">\r\n    <td data-bind=\"text: $rawData\"></td>\r\n</tr>\r\n</tbody>\r\n";
 
 
 module.exports = {
-    init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+    init: function tableBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var $el = $(element), obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
 
-        // Toggle the observable on click
-        $(element).click(function () {
-            obs(!ko.unwrap(obs))
-        });
+        // apply the template
+        utils.applyTemplateIfNoChildren(element, template);
 
-        var updateClass = function () {
-            // if we set it to true, add the "active" class
-            if (obs()) {
-                $el.addClass('active');
-            }
+        var obj = obs(), context;
 
-            // otherwise, remove it
-            else {
-                $el.removeClass('active');
-            }
-        };
+        if (obj && obj.constructor && obj.constructor.name === "Array") {
+            context = {
+                head: null,
+                rows: obs
+            };
+        }
+        else if (obj && obj.head && obj.rows) {
+            context = obs;
+        }
+        else {
+            context = {
+                head: null,
+                rows: []
+            };
+        }
 
-        // watch for changes
-        obs.subscribe(updateClass);
+        var innerBindingContext = bindingContext.extend(context);
 
-        // invoke immediately to get the initial class correct
-        updateClass();
+        ko.applyBindingsToDescendants(innerBindingContext, element);
+
+        return { controlsDescendantBindings: true };
     },
     makeRealNode: utils.makeRealNode({
         classes: "ui table",
@@ -284,7 +280,7 @@ module.exports = {
 };
 
 
-},{"../utils":12}],7:[function(require,module,exports){
+},{"../utils":12,"fs":1}],7:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
@@ -388,6 +384,7 @@ bindingHandlers["steps"] = require("./bindings/steps");
 bindingHandlers["modal"] = require("./bindings/modal");
 bindingHandlers["dropdown"] = require("./bindings/dropdown");
 bindingHandlers["popup"] = require("./bindings/popup");
+bindingHandlers["table"] = require("./bindings/table");
 
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");
@@ -411,7 +408,7 @@ if (typeof window !== "undefined") {
     window.sui = module.exports;
 }
 
-},{"./bindings/dropdown":2,"./bindings/modal":3,"./bindings/popup":4,"./bindings/steps":5,"./bindings/toggle":7,"./classes":8,"./suiBindingProvider.js":11}],11:[function(require,module,exports){
+},{"./bindings/dropdown":2,"./bindings/modal":3,"./bindings/popup":4,"./bindings/steps":5,"./bindings/table":6,"./bindings/toggle":7,"./classes":8,"./suiBindingProvider.js":11}],11:[function(require,module,exports){
 var config = require("./config");
 
 var NamespaceBindingProvider = function () {
@@ -438,7 +435,7 @@ var NamespaceBindingProvider = function () {
             // they tried to use an element which is now just sitting in the dom
             // we should warn developers about this...
             else {
-                window.console && console.log("WARNING: no binding handler " + tagName +
+                window.console && console.warn("WARNING: no binding handler " + tagName +
                     " which implements makeRealNode.  You may have made a typo.");
                 return;
             }
@@ -588,6 +585,21 @@ var utils = module.exports = {
             return newElement;
         }
     },
+    applyTemplateIfNoChildren: function(element, template) {
+        // the easiest is if we have no children
+        if (element.childNodes.length === 0) {
+            element.innerHTML = template;
+            return true;
+        }
+
+        // sometimes we get an empty text node
+        if (element.childNodes.length === 1 && element.childNodes[0].nodeType === Node.TEXT_NODE && !element.textContent.trim()) {
+            element.innerHTML = template;
+            return true;
+        }
+
+        return false;
+    },
     getBindingObservable: function (valueAccessor, viewModel) {
         var value, obs;
 
@@ -597,8 +609,6 @@ var utils = module.exports = {
         else {
             value = valueAccessor;
         }
-
-        console.log(value, viewModel);
 
         // for subproperties, they'll ask for the property directly
         if (typeof value === "string") {
@@ -610,11 +620,21 @@ var utils = module.exports = {
 
         // did preprocess make our special object?
         if (typeof value === "object" && value._kosui) {
-            return ko.getObservable(viewModel, value._kosui);
+            var obs = ko.getObservable(viewModel, value._kosui);
+
+            // this will be true if ko.track was called on the context
+            if (obs && ko.isSubscribable(obs)) {
+                return obs
+            }
+
+            // otherwise, we just want the property
+            else {
+                value = viewModel[value._kosui];
+            }
         }
 
         // old school observable
-        else if (ko.isSubscribable(value)) {
+        if (ko.isSubscribable(value)) {
             return value;
         }
 
@@ -633,5 +653,5 @@ var utils = module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,6,5,7,8,9,10,11,12])
+},{}]},{},[2,3,4,5,6,7,8,9,11,10,12])
 ;

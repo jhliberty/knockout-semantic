@@ -37,12 +37,7 @@ module.exports = {
         ko.cleanNode(element);
 
 
-        // check if there are children
-        // if so, we don't want to delete them
-        if (element.children.length === 0) {
-            // load our module template
-            element.innerHTML = template;
-        }
+        utils.applyTemplateIfNoChildren(element, template);
 
         var observable = ko.getObservable(obj, "show");
 

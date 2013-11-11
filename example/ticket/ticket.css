@@ -1,0 +1,8 @@
+body {
+    font-family: "Open Sans", arial;
+}
+
+#brand {
+    margin-bottom: 2em;
+    border-bottom: 4px solid #38caff;
+}

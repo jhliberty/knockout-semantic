@@ -84,6 +84,21 @@ var utils = module.exports = {
             return newElement;
         }
     },
+    applyTemplateIfNoChildren: function(element, template) {
+        // the easiest is if we have no children
+        if (element.childNodes.length === 0) {
+            element.innerHTML = template;
+            return true;
+        }
+
+        // sometimes we get an empty text node
+        if (element.childNodes.length === 1 && element.childNodes[0].nodeType === Node.TEXT_NODE && !element.textContent.trim()) {
+            element.innerHTML = template;
+            return true;
+        }
+
+        return false;
+    },
     getBindingObservable: function (valueAccessor, viewModel) {
         var value, obs;
 
@@ -93,8 +108,6 @@ var utils = module.exports = {
         else {
             value = valueAccessor;
         }
-
-        console.log(value, viewModel);
 
         // for subproperties, they'll ask for the property directly
         if (typeof value === "string") {
@@ -106,11 +119,21 @@ var utils = module.exports = {
 
         // did preprocess make our special object?
         if (typeof value === "object" && value._kosui) {
-            return ko.getObservable(viewModel, value._kosui);
+            var obs = ko.getObservable(viewModel, value._kosui);
+
+            // this will be true if ko.track was called on the context
+            if (obs && ko.isSubscribable(obs)) {
+                return obs
+            }
+
+            // otherwise, we just want the property
+            else {
+                value = viewModel[value._kosui];
+            }
         }
 
         // old school observable
-        else if (ko.isSubscribable(value)) {
+        if (ko.isSubscribable(value)) {
             return value;
         }
 

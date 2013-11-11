@@ -1,33 +1,38 @@
 var utils = require("../utils");
+var fs = require('fs');
 var template = fs.readFileSync(__dirname + "/templates/table.html");
 
 
 module.exports = {
-    init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+    init: function tableBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var $el = $(element), obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
 
-        // Toggle the observable on click
-        $(element).click(function () {
-            obs(!ko.unwrap(obs))
-        });
+        // apply the template
+        utils.applyTemplateIfNoChildren(element, template);
 
-        var updateClass = function () {
-            // if we set it to true, add the "active" class
-            if (obs()) {
-                $el.addClass('active');
-            }
+        var obj = obs(), context;
 
-            // otherwise, remove it
-            else {
-                $el.removeClass('active');
-            }
-        };
+        if (obj && obj.constructor && obj.constructor.name === "Array") {
+            context = {
+                head: null,
+                rows: obs
+            };
+        }
+        else if (obj && obj.head && obj.rows) {
+            context = obs;
+        }
+        else {
+            context = {
+                head: null,
+                rows: []
+            };
+        }
 
-        // watch for changes
-        obs.subscribe(updateClass);
+        var innerBindingContext = bindingContext.extend(context);
 
-        // invoke immediately to get the initial class correct
-        updateClass();
+        ko.applyBindingsToDescendants(innerBindingContext, element);
+
+        return { controlsDescendantBindings: true };
     },
     makeRealNode: utils.makeRealNode({
         classes: "ui table",

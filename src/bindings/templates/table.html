@@ -1,1 +1,13 @@
-<table class="ui table"></table>
+<!-- ko if: head && head.length -->
+<thead>
+<tr data-bind="foreach: head">
+    <th data-bind="text: $rawData"></th>
+</tr>
+</thead>
+<!-- /ko -->
+
+<tbody data-bind="foreach: rows">
+<tr data-bind="foreach: $rawData">
+    <td data-bind="text: $rawData"></td>
+</tr>
+</tbody>
