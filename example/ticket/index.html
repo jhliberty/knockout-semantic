@@ -58,7 +58,7 @@
                 <div class="ui red inverted right pointing label" data-bind="visible: promo.code && !promo.isValid()">Invalid!  Try "semantic"</div>
                 <div class="ui green inverted right pointing label" data-bind="visible: promo.code && promo.isValid()">Sweet!  You get 200% off the original price!</div>
                 <div class="ui input">
-                <input type="text" data-bind="value: promo.code, valueUpdate: 'afterkeydown'"/>
+                <input type="text" data-bind="value: promo.code, valueUpdate: 'afterkeydown'" autofocus autocomplete="off"/>
                 </div>
                 <!-- /ko -->
             </div>
