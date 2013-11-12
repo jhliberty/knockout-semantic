@@ -5,6 +5,8 @@
 // untraditional implementation of this module.
 
 },{}],2:[function(require,module,exports){
+
+},{}],3:[function(require,module,exports){
 var utils = require("../utils");
 var fs = require('fs');
 var template = "<input type=\"hidden\" />\r\n<div class=\"default text\" data-bind=\"text: context.text || context.selected || context.defaultText\"></div>\r\n<i class=\"dropdown icon\"></i>\r\n<div class=\"menu\" data-bind=\"foreach: context.options\">\r\n    <!-- ko if: typeof $data === \"object\" -->\r\n    <div class=\"item\" data-bind=\"click: $data.go || $.noop\">\r\n        <!-- ko if: $data.icon -->\r\n        <i data-bind=\"attr: {'class': 'icon ' + $data.icon}\"></i>\r\n        <!-- /ko -->\r\n        <!-- ko text: $data.text --><!-- /ko -->\r\n    </div>\r\n    <!-- /ko -->\r\n    <!-- ko if: typeof $data === \"string\" -->\r\n    <div class=\"item\" data-bind=\"text: $rawData\"></div>\r\n    <!-- /ko -->\r\n</div>\r\n<!--\r\ncontext.data[$index() | 0]-->\r\n";
@@ -60,7 +62,103 @@ module.exports = {
     preprocess: utils.preprocess
 };
 
-},{"../utils":12,"fs":1}],3:[function(require,module,exports){
+},{"../utils":14,"fs":1}],4:[function(require,module,exports){
+var utils = require("../utils");
+var fs = require('fs');
+var template = "<div data-bind=\"foreach: $data\">\r\n    <!-- ko if: type === 'string' || type === 'number' -->\r\n    <div class=\"ui input\">\r\n        <!-- ko if: key -->\r\n            <label data-bind=\"text: key\"></label>\r\n        <!-- /ko -->\r\n        <input type=\"text\" data-bind=\"value: value, attr: { placeholder: key }\"/>\r\n    </div>\r\n    <!-- /ko -->\r\n\r\n    <!-- ko if: type === 'boolean' -->\r\n        <s-toggle data=\"value\" text=\"key\"></s-toggle>\r\n    <!-- /ko -->\r\n    <!-- ko if: type === 'array' -->\r\n        <s-dropdown data=\"value\"></s-dropdown>\r\n    <!-- /ko -->\r\n    <!-- ko if: type === 'object' -->\r\n\r\n    <!-- /ko -->\r\n</div>";
+
+module.exports = {
+    init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var obs = utils.getBindingObservable(valueAccessor, bindingContext.$rawData);
+
+        var formObject = ko.unwrap(obs);
+
+        var context = Object.keys(formObject).map(function(key){
+
+
+            var itemObservable = formObject[key];
+            if (!ko.isObservable(itemObservable)) {
+                itemObservable = ko.getObservable(formObject, key);
+            }
+            var itemDefault = ko.unwrap(itemObservable);
+
+            var obj = {
+                key: key,
+                type: "unknown",
+                value: itemObservable
+            };
+
+            console.log();
+
+            if (typeof itemDefault === "boolean") {
+                obj.type = "boolean";
+            }
+            if (typeof itemDefault === "string") {
+                obj.type = "string";
+            }
+            if (itemDefault && itemDefault.constructor.name === "Array") {
+                obj.type = "array";
+
+                if (itemDefault.selected === undefined) {
+                    // it must have a selected property and we want it to be observable
+                    itemDefault.selected = itemDefault[0];
+                    ko.track(itemDefault, ["selected"]);
+                }
+
+                // for arrays we need to make the usual dropdown object
+                obj.value = {
+                    options: itemObservable
+                };
+
+                // the selcted property needs to stay in sync with the selected property on the array
+                ko.defineProperty(obj.value, "selected", {
+                    get: function(){
+                        return itemDefault.selected;
+                    },
+                    set: function(val) {
+                        itemDefault.selected = val;
+                    }
+                });
+            }
+            if (typeof itemDefault === "number") {
+                obj.type = "number";
+
+                // we need to make sure it stays a number
+                var originalObservable = itemObservable;
+                obj.value = ko.computed({
+                    read: function(){
+                        return ko.unwrap(originalObservable);
+                    },
+                    write: function(val) {
+                        if (typeof val === "string") {
+                            // remove all non-numeric characters and convert it to a string
+                            originalObservable(
+                                Number(
+                                    val.replace(/[^0-9.]+/g, '')
+                                )
+                            );
+                        }
+                    }
+                });
+            }
+
+            return obj;
+        });
+
+        var innerBindingContext = bindingContext.createChildContext(context);
+
+        element.innerHTML = template;
+
+        ko.applyBindingsToDescendants(innerBindingContext, element);
+        return { controlsDescendantBindings: true };
+    },
+    makeRealNode: utils.makeRealNode({
+        classes: "ui form"
+    }),
+    preprocess: utils.preprocess
+};
+
+},{"../utils":14,"fs":1}],5:[function(require,module,exports){
 var fs = require('fs');
 var template = "<i class=\"close icon\"></i>\r\n<div class=\"header\" data-bind=\"text: title\">\r\n\r\n</div>\r\n<div class=\"content\" data-bind=\"html: content\">\r\n    <div class=\"left\">\r\n        Content can appear on left\r\n    </div>\r\n    <div class=\"right\">\r\n        Content can appear on right\r\n    </div>\r\n</div>\r\n<div class=\"actions\" data-bind=\"foreach: buttons\">\r\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\r\n</div>";
 var Action = require("../classes").Action;
@@ -159,7 +257,7 @@ module.exports = {
     }),
     preprocess: utils.preprocess
 };
-},{"../classes":8,"../utils.js":12,"fs":1}],4:[function(require,module,exports){
+},{"../classes":10,"../utils.js":14,"fs":1}],6:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
@@ -190,7 +288,7 @@ module.exports = {
 }
 ;
 
-},{"../utils":12}],5:[function(require,module,exports){
+},{"../utils":14}],7:[function(require,module,exports){
 var fs = require('fs');
 var template = "<!-- ko foreach: data -->\r\n<!-- ko if: $parent.disabled -->\r\n\r\n<div class=\"step\" data-bind=\"text: $data,\r\n    css: {\r\n        active: $parent.active === $index() || $parent.active === $data,\r\n        disabled: $parent.active !== $index() && $parent.active !== $data\r\n    }\"></div>\r\n<!-- /ko -->\r\n<!-- ko ifnot: $parent.disabled -->\r\n<div class=\"step\" data-bind=\"text: $data,\r\n    css: { active: $parent.active === $index() || $parent.active === $data },\r\n    click: function(){ typeof $parent.active === 'number' ? $parent.active = $index() : $parent.active = $data }\"></div>\r\n<!-- /ko -->\r\n\r\n<!-- /ko -->";
 
@@ -235,7 +333,7 @@ var binding = {
 };
 
 module.exports = binding;
-},{"../utils":12,"fs":1}],6:[function(require,module,exports){
+},{"../utils":14,"fs":1}],8:[function(require,module,exports){
 var utils = require("../utils");
 var fs = require('fs');
 var template = "<!-- ko if: head && head.length -->\r\n<thead>\r\n<tr data-bind=\"foreach: head\">\r\n    <th data-bind=\"text: $rawData\"></th>\r\n</tr>\r\n</thead>\r\n<!-- /ko -->\r\n\r\n<tbody data-bind=\"foreach: rows\">\r\n<tr data-bind=\"foreach: $rawData\">\r\n    <td data-bind=\"text: $rawData\"></td>\r\n</tr>\r\n</tbody>\r\n";
@@ -280,7 +378,7 @@ module.exports = {
 };
 
 
-},{"../utils":12,"fs":1}],7:[function(require,module,exports){
+},{"../utils":14,"fs":1}],9:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
@@ -316,7 +414,7 @@ module.exports = {
     preprocess: utils.preprocess
 };
 
-},{"../utils":12}],8:[function(require,module,exports){
+},{"../utils":14}],10:[function(require,module,exports){
 /**
  * @constructor
  */
@@ -370,13 +468,13 @@ module.exports = {
     Dropdown: Dropdown,
     utils: require('./utils')
 };
-},{"./utils":12}],9:[function(require,module,exports){
+},{"./utils":14}],11:[function(require,module,exports){
 var config = {
     namespace: "s-"
 }
 
 module.exports = config;
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // Load up our binding handlers
 var bindingHandlers = window.ko.bindingHandlers;
 bindingHandlers["toggle"] = require("./bindings/toggle");
@@ -385,6 +483,7 @@ bindingHandlers["modal"] = require("./bindings/modal");
 bindingHandlers["dropdown"] = require("./bindings/dropdown");
 bindingHandlers["popup"] = require("./bindings/popup");
 bindingHandlers["table"] = require("./bindings/table");
+bindingHandlers["form"] = require("./bindings/form");
 
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");
@@ -408,7 +507,7 @@ if (typeof window !== "undefined") {
     window.sui = module.exports;
 }
 
-},{"./bindings/dropdown":2,"./bindings/modal":3,"./bindings/popup":4,"./bindings/steps":5,"./bindings/table":6,"./bindings/toggle":7,"./classes":8,"./suiBindingProvider.js":11}],11:[function(require,module,exports){
+},{"./bindings/dropdown":3,"./bindings/form":4,"./bindings/modal":5,"./bindings/popup":6,"./bindings/steps":7,"./bindings/table":8,"./bindings/toggle":9,"./classes":10,"./suiBindingProvider.js":13}],13:[function(require,module,exports){
 var config = require("./config");
 
 var NamespaceBindingProvider = function () {
@@ -498,7 +597,7 @@ NamespaceBindingProvider.prototype = bpInstance;
 
 var nsProvider = new NamespaceBindingProvider();
 bpInstance.others.push(nsProvider.preprocessNode.bind(nsProvider));
-},{"./config":9}],12:[function(require,module,exports){
+},{"./config":11}],14:[function(require,module,exports){
 var utils = module.exports = {
     byIndexOrName: function (index, array) {
         if (!isNaN(parseInt(index))) {
@@ -653,5 +752,5 @@ var utils = module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,5,6,7,8,9,11,10,12])
+},{}]},{},[2,3,4,5,6,7,8,9,11,10,12,13,14])
 ;

@@ -37,7 +37,6 @@
         </div>
         <s-toggle data="awesomeness">Toggle Awesomeness</s-toggle>
         <s-dropdown data="sex"></s-dropdown>
-
         <div class="ui segment">
             Step 1: Greet the person <i class="help icon" data-bind="popup: 'Hey or Hi'"></i>
         </div>
@@ -46,6 +45,8 @@
             Step 2: Shake hands <i class="help icon"
                                    data-bind="popup: {title: 'Common Practice', content: 'Use your right hand', inline: false}"></i>
         </div>
+    </div>
+    <div class="column">
 
 
         <p>Simple Table</p>
@@ -56,6 +57,10 @@
 
         <s-table data="table" class="blue celled segment"></s-table>
     </div>
+    <div class="column">
+        <s-form data="form"></s-form>
+    </div>
+</div>
 </div>
 
 <script type="text/javascript">
@@ -79,7 +84,15 @@
             ["Mike", "IT"],
             ["Paul", "HR"],
             ["Rick", "Coffee Fetcher"]
-        ]
+        ],
+        form: ko.track({
+            "Example": "value",
+            "Sex": ["Male", "Female"],
+            "Toggle": true,
+            "Num": 3
+
+
+        })
     };
 
     ko.track(viewModel);

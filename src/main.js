@@ -6,6 +6,7 @@ bindingHandlers["modal"] = require("./bindings/modal");
 bindingHandlers["dropdown"] = require("./bindings/dropdown");
 bindingHandlers["popup"] = require("./bindings/popup");
 bindingHandlers["table"] = require("./bindings/table");
+bindingHandlers["form"] = require("./bindings/form");
 
 // this module registers it self, so we just need to make sure it runs
 require("./suiBindingProvider.js");

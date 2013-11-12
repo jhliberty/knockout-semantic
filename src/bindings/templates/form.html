@@ -1,0 +1,20 @@
+<div data-bind="foreach: $data">
+    <!-- ko if: type === 'string' || type === 'number' -->
+    <div class="ui input">
+        <!-- ko if: key -->
+            <label data-bind="text: key"></label>
+        <!-- /ko -->
+        <input type="text" data-bind="value: value, attr: { placeholder: key }"/>
+    </div>
+    <!-- /ko -->
+
+    <!-- ko if: type === 'boolean' -->
+        <s-toggle data="value" text="key"></s-toggle>
+    <!-- /ko -->
+    <!-- ko if: type === 'array' -->
+        <s-dropdown data="value"></s-dropdown>
+    <!-- /ko -->
+    <!-- ko if: type === 'object' -->
+
+    <!-- /ko -->
+</div>
