@@ -22,60 +22,132 @@
     <script type="text/javascript" src="../../build/knockout-semantic.js"></script>
     <script type="text/javascript" src="ticket.js"></script>
 
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css' />
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'/>
 </head>
 <body>
 
 <header class="ui one column page grid">
     <div class="column" id="brand">
 
-        <div class="ui two column grid">
+        <div class="ui three column grid">
             <div class="column">
-        <div class="ui large header">SuperTickets</div>
+                <div class="ui large header">SuperTickets</div>
+            </div>
+            <div class="left aligned column">
+                <div id="nav">
+                    <a href="../../">
+                        <i class="circular inverted blue home icon"></i>
+                    </a>
+                    <a href="../">
+                        <i class="circular inverted blue up icon"></i>
+                    </a>
+                    <a href="#" data-bind="click: help.show">
+                        <i class="circular inverted blue question icon"></i>
+                    </a>
                 </div>
-        <div class="column"><div class="ui blue"><i class="ticket icon"></i>s for less</div></div>
+            </div>
+            <div class="right aligned column">
+                <div class="ui blue"><i class="ticket icon"></i>s for less</div>
+            </div>
         </div>
 
     </div>
 </header>
 
 <div class="ui page grid">
+    <!-- ko if: help.showing -->
+    <div class="ui sixteen wide column" data-bind="template: 'helpTemplate'"> </div>
+    <!-- /ko -->
+    <!-- ko if: transaction -->
+    <div class="ui sixteen wide column" data-bind="template: {name:'cartTemplate', data: transaction}"> </div>
+    <!-- /ko -->
     <div class="ui ten wide column">
 
         <div class="ui segment">
             <div class="ui dividing header">
                 SemanticCon 2194 - Meet other Awesome People
                 <div class="ui sub header">Free Drinks</div>
-                <time class="ui sub header" datetime="2194-2-13T20:00+00:00">Thursday, the 2<sup>nd</sup> of January 2194 at 8:00 PM</time>
+                <time class="ui sub header" datetime="2194-2-13T20:00+00:00">Thursday, the 2<sup>nd</sup> of January
+                    2194 at 8:00 PM
+                </time>
 
             </div>
             <s-table data="ticketInfo" class="blue celled"></s-table>
             <div class="ui right aligned bottom attached segment">
                 <!-- ko ifnot: promo.hasPromo -->
-                    <div class="ui mini button" data-bind="click: promo.askForPromo">I have a promo code!</div>
+                <div class="ui mini button" data-bind="click: promo.askForPromo">I have a promo code!</div>
                 <!-- /ko -->
                 <!-- ko if: promo.hasPromo -->
-                <div class="ui red inverted right pointing label" data-bind="visible: promo.code && !promo.isValid()">Invalid!  Try "semantic"</div>
-                <div class="ui green inverted right pointing label" data-bind="visible: promo.code && promo.isValid()">Sweet!  You get 200% off the original price!</div>
+                <div class="ui red inverted right pointing label" data-bind="visible: promo.code && !promo.isValid()">
+                    Invalid! Try "semantic"
+                </div>
+                <div class="ui green inverted right pointing label" data-bind="visible: promo.code && promo.isValid()">
+                    Sweet! You get 200% off the original price!
+                </div>
                 <div class="ui input">
-                <input type="text" data-bind="value: promo.code, valueUpdate: 'afterkeydown'" autofocus autocomplete="off"/>
+                    <input type="text" data-bind="value: promo.code, valueUpdate: 'afterkeydown'" autofocus
+                           autocomplete="off"/>
                 </div>
                 <!-- /ko -->
             </div>
+
+            <!-- Show a button for each ticket type
+                   these use flexbox because we might have 4 ticket types on another page
+                   you could also use columns, if you like -->
+            <div class="ui bottom attached segment" data-bind="foreach: ticketInfo.rows" id="buy-buttons">
+                <div class="green ui button" data-bind="text: $data[0], click: $root.buy"></div>
+            </div>
         </div>
     </div>
+
+    <!-- A sidebar with google maps embedded, in production I'd recommend a different library like Leaflet -->
     <aside class="ui six wide column">
-        <div class="ui green segment">
+        <div class="ui segment">
             <div class="ui header">
                 Join us in Jan Mayenveien!
             </div>
 
             <div class="ui segment">
-                <iframe width="425" height="400" style="width: 100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=70.962791,-8.634549&amp;num=1&amp;t=h&amp;ie=UTF8&amp;ll=70.962497,-8.632421&amp;spn=0.009799,0.036478&amp;z=14&amp;output=embed"></iframe><br />
-                <a  class="ui bottom attached fluid button" href="https://maps.google.com/maps?q=70.962791,-8.634549&amp;num=1&amp;t=h&amp;ie=UTF8&amp;ll=70.962497,-8.632421&amp;spn=0.009799,0.036478&amp;z=14&amp;source=embed" style="color:#0000FF;text-align:left">View Larger Map</a>
+                <iframe width="425" height="400" style="width: 100%" frameborder="0" scrolling="no" marginheight="0"
+                        marginwidth="0"
+                        src="https://maps.google.com/maps?q=70.962791,-8.634549&amp;num=1&amp;t=h&amp;ie=UTF8&amp;ll=70.962497,-8.632421&amp;spn=0.009799,0.036478&amp;z=14&amp;output=embed"></iframe>
+                <br/>
+                <a class="ui bottom attached fluid button"
+                   href="https://maps.google.com/maps?q=70.962791,-8.634549&amp;num=1&amp;t=h&amp;ie=UTF8&amp;ll=70.962497,-8.632421&amp;spn=0.009799,0.036478&amp;z=14&amp;source=embed"
+                   style="color:#0000FF;text-align:left">View Larger Map</a>
             </div>
         </div>
     </aside>
+
+    <!-- A simple template that the user can show by pressing the (?) button -->
+    <script type="text/html" id="helpTemplate">
+        <div class="ui large header">What is this?</div>
+        <p>This is an example view for <a href="http://semantic-ui.com" target="_blank">Semantic-UI</a>.
+            In particular this is for the <a href="../../" target="_blank">Knockout-Semantic</a> plugin.</p>
+
+        <div class="ui large header">Give me the code!</div>
+        <p>Gladly! <a href="https://github.com/brigand/knockout-semantic/tree/gh-pages/example/ticket" target="_blank">Click
+            here to browse it.</a>
+            Feel free to improve it, or use any part of it for your site.</p>
+    </script>
+
+    <!-- A simple cart template that shows up when the user has a pending transaction -->
+    <script type="text/html" id="cartTemplate">
+        <div class="ui green segment">
+            <div class="ui header">Sweet!  Let's do this!</div>
+            <div class="ui header">
+                I want
+
+                <div class="ui left attached icon button" data-bind="click: decrement"><i class="minus icon"></i></div><!--
+                --><div class="ui small input">
+                    <input type="text" value="1" data-bind="text: quantity"/>
+                </div><!--
+                --><div class="ui right attached icon button" data-bind="click: increment"><i class="plus icon"></i></div>
+
+                tickets for <strong data-bind="text: price"></strong>
+            </div>
+        </div>
+    </script>
 </div>
 
 <script type="text/javascript">

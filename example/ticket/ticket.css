@@ -1,8 +1,22 @@
 body {
     font-family: "Open Sans", arial;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX4+Pj09PQf/c7fAAAAGUlEQVR4XnXIMQ0AAACDMPyb3gxA0qswVX1+vw/xW46qyAAAAABJRU5ErkJggg==);
 }
 
 #brand {
     margin-bottom: 2em;
     border-bottom: 4px solid #38caff;
+}
+
+#nav a {
+    text-decoration: none;
+}
+
+#buy-buttons {
+    display: flex;
+}
+
+#buy-buttons > .button {
+    flex: 1;
+    margin: 0 .5em;
 }
