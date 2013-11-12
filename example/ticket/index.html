@@ -135,17 +135,24 @@
     <script type="text/html" id="cartTemplate">
         <div class="ui green segment">
             <div class="ui header">Sweet!  Let's do this!</div>
-            <div class="ui header">
+            <div class="ui center aligned header" id="cart">
+                <div class="ui icon button" data-bind="click: decrement"><i class="minus icon"></i></div>
+
                 I want
+                <strong data-bind="text: quantity"></strong>
+                <strong data-bind="text: kind"></strong>
+                tickets for $<strong data-bind="text: Number($data.price).toFixed(2)"></strong>
 
-                <div class="ui left attached icon button" data-bind="click: decrement"><i class="minus icon"></i></div><!--
-                --><div class="ui small input">
-                    <input type="text" value="1" data-bind="text: quantity"/>
-                </div><!--
-                --><div class="ui right attached icon button" data-bind="click: increment"><i class="plus icon"></i></div>
+                <div class="ui icon button" data-bind="click: increment"><i class="plus icon"></i></div>
 
-                tickets for <strong data-bind="text: price"></strong>
+
+
             </div>
+            <div class="ui bottom attached center aligned basic segment">
+                <div class="ui positive button">I'm ready!*</div>
+                <div><em><sub><small>* this button doesn't actually do anything, because this is just a demo</small></sub></em></div>
+            </div>
+
         </div>
     </script>
 </div>

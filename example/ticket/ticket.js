@@ -61,20 +61,29 @@ function TicketViewModel() {
             basePrice: data[2]
         };
 
+        // grab the ticket type
+        transaction.kind = data[0];
+
         transaction.quantity = 1;
 
         // increment and decrement function
-        transaction.increment = function(){ transaction.quantity = 1 + Number(transaction.quantity)};
+        transaction.increment = function(){
+            transaction.quantity++;
+        };
+
         transaction.decrement = function(){
-            if (transaction.quantity > 1) {
-                transaction.quantity = 1 - Number(transaction.quantity);
+            var quantity = transaction.quantity;
+            if (quantity > 1) {
+                transaction.quantity--;
             }
         };
 
         // define a custom price property
         ko.defineProperty(transaction, "price", function () {
             // remove all characters except digits and decimals
-            var price = transaction.basePrice.replace(/[^\d.]+/, '');
+            var price = transaction.basePrice.replace(/[^\d.]+/g, '');
+
+            console.log(price, transaction.quantity, self.promo.priceMultiplier());
 
             // then get the price by multiplying it by the promo price
             return self.promo.priceMultiplier() * price * transaction.quantity;
