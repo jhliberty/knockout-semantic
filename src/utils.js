@@ -26,6 +26,8 @@ var utils = module.exports = {
     mergeClasses: function (extra, source, dest) {
         var classList = [];
 
+
+
         if (source.className) {
             classList.push(source.className);
         }

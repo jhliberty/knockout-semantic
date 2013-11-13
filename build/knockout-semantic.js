@@ -5,11 +5,9 @@
 // untraditional implementation of this module.
 
 },{}],2:[function(require,module,exports){
-
-},{}],3:[function(require,module,exports){
 var utils = require("../utils");
 var fs = require('fs');
-var template = "<input type=\"hidden\" />\r\n<div class=\"default text\" data-bind=\"text: context.text || context.selected || context.defaultText\"></div>\r\n<i class=\"dropdown icon\"></i>\r\n<div class=\"menu\" data-bind=\"foreach: context.options\">\r\n    <!-- ko if: typeof $data === \"object\" -->\r\n    <div class=\"item\" data-bind=\"click: $data.go || $.noop\">\r\n        <!-- ko if: $data.icon -->\r\n        <i data-bind=\"attr: {'class': 'icon ' + $data.icon}\"></i>\r\n        <!-- /ko -->\r\n        <!-- ko text: $data.text --><!-- /ko -->\r\n    </div>\r\n    <!-- /ko -->\r\n    <!-- ko if: typeof $data === \"string\" -->\r\n    <div class=\"item\" data-bind=\"text: $rawData\"></div>\r\n    <!-- /ko -->\r\n</div>\r\n<!--\r\ncontext.data[$index() | 0]-->\r\n";
+var template = "<input type=\"hidden\" />\n<div class=\"default text\" data-bind=\"text: context.text || context.selected || context.defaultText\"></div>\n<i class=\"dropdown icon\"></i>\n<div class=\"menu\" data-bind=\"foreach: context.options\">\n    <!-- ko if: typeof $data === \"object\" -->\n    <div class=\"item\" data-bind=\"click: $data.go || $.noop\">\n        <!-- ko if: $data.icon -->\n        <i data-bind=\"attr: {'class': 'icon ' + $data.icon}\"></i>\n        <!-- /ko -->\n        <!-- ko text: $data.text --><!-- /ko -->\n    </div>\n    <!-- /ko -->\n    <!-- ko if: typeof $data === \"string\" -->\n    <div class=\"item\" data-bind=\"text: $rawData\"></div>\n    <!-- /ko -->\n</div>\n<!--\ncontext.data[$index() | 0]-->\n";
 
 module.exports = {
     init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
@@ -62,10 +60,10 @@ module.exports = {
     preprocess: utils.preprocess
 };
 
-},{"../utils":14,"fs":1}],4:[function(require,module,exports){
+},{"../utils":13,"fs":1}],3:[function(require,module,exports){
 var utils = require("../utils");
 var fs = require('fs');
-var template = "<div data-bind=\"foreach: $data\">\r\n    <!-- ko if: type === 'string' || type === 'number' -->\r\n    <div class=\"ui input\">\r\n        <!-- ko if: key -->\r\n            <label data-bind=\"text: key\"></label>\r\n        <!-- /ko -->\r\n        <input type=\"text\" data-bind=\"value: value, attr: { placeholder: key }\"/>\r\n    </div>\r\n    <!-- /ko -->\r\n\r\n    <!-- ko if: type === 'boolean' -->\r\n        <s-toggle data=\"value\" text=\"key\"></s-toggle>\r\n    <!-- /ko -->\r\n    <!-- ko if: type === 'array' -->\r\n        <s-dropdown data=\"value\"></s-dropdown>\r\n    <!-- /ko -->\r\n    <!-- ko if: type === 'object' -->\r\n\r\n    <!-- /ko -->\r\n</div>";
+var template = "<div data-bind=\"foreach: $data\">\n    <!-- ko if: type === 'string' || type === 'number' -->\n    <div class=\"ui input\">\n        <!-- ko if: key -->\n            <label data-bind=\"text: key\"></label>\n        <!-- /ko -->\n        <input type=\"text\" data-bind=\"value: value, attr: { placeholder: key }\"/>\n    </div>\n    <!-- /ko -->\n\n    <!-- ko if: type === 'boolean' -->\n        <s-toggle data=\"value\" text=\"key\"></s-toggle>\n    <!-- /ko -->\n    <!-- ko if: type === 'array' -->\n        <s-dropdown data=\"value\" class=\"fluid\"></s-dropdown>\n    <!-- /ko -->\n    <!-- ko if: type === 'object' -->\n\n    <!-- /ko -->\n</div>";
 
 module.exports = {
     init: function dropdownBinding(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
@@ -158,9 +156,9 @@ module.exports = {
     preprocess: utils.preprocess
 };
 
-},{"../utils":14,"fs":1}],5:[function(require,module,exports){
+},{"../utils":13,"fs":1}],4:[function(require,module,exports){
 var fs = require('fs');
-var template = "<i class=\"close icon\"></i>\r\n<div class=\"header\" data-bind=\"text: title\">\r\n\r\n</div>\r\n<div class=\"content\" data-bind=\"html: content\">\r\n    <div class=\"left\">\r\n        Content can appear on left\r\n    </div>\r\n    <div class=\"right\">\r\n        Content can appear on right\r\n    </div>\r\n</div>\r\n<div class=\"actions\" data-bind=\"foreach: buttons\">\r\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\r\n</div>";
+var template = "<i class=\"close icon\"></i>\n<div class=\"header\" data-bind=\"text: title\">\n\n</div>\n<div class=\"content\" data-bind=\"html: content\">\n    <div class=\"left\">\n        Content can appear on left\n    </div>\n    <div class=\"right\">\n        Content can appear on right\n    </div>\n</div>\n<div class=\"actions\" data-bind=\"foreach: buttons\">\n    <div class=\"ui button\" data-bind=\"text: name, click: go\"></div>\n</div>";
 var Action = require("../classes").Action;
 var utils = require("../utils.js");
 
@@ -257,7 +255,7 @@ module.exports = {
     }),
     preprocess: utils.preprocess
 };
-},{"../classes":10,"../utils.js":14,"fs":1}],6:[function(require,module,exports){
+},{"../classes":9,"../utils.js":13,"fs":1}],5:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
@@ -288,9 +286,9 @@ module.exports = {
 }
 ;
 
-},{"../utils":14}],7:[function(require,module,exports){
+},{"../utils":13}],6:[function(require,module,exports){
 var fs = require('fs');
-var template = "<!-- ko foreach: data -->\r\n<!-- ko if: $parent.disabled -->\r\n\r\n<div class=\"step\" data-bind=\"text: $data,\r\n    css: {\r\n        active: $parent.active === $index() || $parent.active === $data,\r\n        disabled: $parent.active !== $index() && $parent.active !== $data\r\n    }\"></div>\r\n<!-- /ko -->\r\n<!-- ko ifnot: $parent.disabled -->\r\n<div class=\"step\" data-bind=\"text: $data,\r\n    css: { active: $parent.active === $index() || $parent.active === $data },\r\n    click: function(){ typeof $parent.active === 'number' ? $parent.active = $index() : $parent.active = $data }\"></div>\r\n<!-- /ko -->\r\n\r\n<!-- /ko -->";
+var template = "<!-- ko foreach: data -->\n<!-- ko if: $parent.disabled -->\n\n<div class=\"step\" data-bind=\"text: $data,\n    css: {\n        active: $parent.active === $index() || $parent.active === $data,\n        disabled: $parent.active !== $index() && $parent.active !== $data\n    }\"></div>\n<!-- /ko -->\n<!-- ko ifnot: $parent.disabled -->\n<div class=\"step\" data-bind=\"text: $data,\n    css: { active: $parent.active === $index() || $parent.active === $data },\n    click: function(){ typeof $parent.active === 'number' ? $parent.active = $index() : $parent.active = $data }\"></div>\n<!-- /ko -->\n\n<!-- /ko -->";
 
 var utils = require("../utils");
 
@@ -333,10 +331,10 @@ var binding = {
 };
 
 module.exports = binding;
-},{"../utils":14,"fs":1}],8:[function(require,module,exports){
+},{"../utils":13,"fs":1}],7:[function(require,module,exports){
 var utils = require("../utils");
 var fs = require('fs');
-var template = "<!-- ko if: head && head.length -->\r\n<thead>\r\n<tr data-bind=\"foreach: head\">\r\n    <th data-bind=\"text: $rawData\"></th>\r\n</tr>\r\n</thead>\r\n<!-- /ko -->\r\n\r\n<tbody data-bind=\"foreach: rows\">\r\n<tr data-bind=\"foreach: $rawData\">\r\n    <td data-bind=\"text: $rawData\"></td>\r\n</tr>\r\n</tbody>\r\n";
+var template = "<!-- ko if: head && head.length -->\n<thead>\n<tr data-bind=\"foreach: head\">\n    <th data-bind=\"text: $rawData\"></th>\n</tr>\n</thead>\n<!-- /ko -->\n\n<tbody data-bind=\"foreach: rows\">\n<tr data-bind=\"foreach: $rawData\">\n    <td data-bind=\"text: $rawData\"></td>\n</tr>\n</tbody>\n";
 
 
 module.exports = {
@@ -378,7 +376,7 @@ module.exports = {
 };
 
 
-},{"../utils":14,"fs":1}],9:[function(require,module,exports){
+},{"../utils":13,"fs":1}],8:[function(require,module,exports){
 var utils = require("../utils");
 
 module.exports = {
@@ -414,7 +412,7 @@ module.exports = {
     preprocess: utils.preprocess
 };
 
-},{"../utils":14}],10:[function(require,module,exports){
+},{"../utils":13}],9:[function(require,module,exports){
 /**
  * @constructor
  */
@@ -468,13 +466,13 @@ module.exports = {
     Dropdown: Dropdown,
     utils: require('./utils')
 };
-},{"./utils":14}],11:[function(require,module,exports){
+},{"./utils":13}],10:[function(require,module,exports){
 var config = {
     namespace: "s-"
 }
 
 module.exports = config;
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 // Load up our binding handlers
 var bindingHandlers = window.ko.bindingHandlers;
 bindingHandlers["toggle"] = require("./bindings/toggle");
@@ -507,7 +505,7 @@ if (typeof window !== "undefined") {
     window.sui = module.exports;
 }
 
-},{"./bindings/dropdown":3,"./bindings/form":4,"./bindings/modal":5,"./bindings/popup":6,"./bindings/steps":7,"./bindings/table":8,"./bindings/toggle":9,"./classes":10,"./suiBindingProvider.js":13}],13:[function(require,module,exports){
+},{"./bindings/dropdown":2,"./bindings/form":3,"./bindings/modal":4,"./bindings/popup":5,"./bindings/steps":6,"./bindings/table":7,"./bindings/toggle":8,"./classes":9,"./suiBindingProvider.js":12}],12:[function(require,module,exports){
 var config = require("./config");
 
 var NamespaceBindingProvider = function () {
@@ -597,7 +595,7 @@ NamespaceBindingProvider.prototype = bpInstance;
 
 var nsProvider = new NamespaceBindingProvider();
 bpInstance.others.push(nsProvider.preprocessNode.bind(nsProvider));
-},{"./config":11}],14:[function(require,module,exports){
+},{"./config":10}],13:[function(require,module,exports){
 var utils = module.exports = {
     byIndexOrName: function (index, array) {
         if (!isNaN(parseInt(index))) {
@@ -626,6 +624,8 @@ var utils = module.exports = {
     mergeClasses: function (extra, source, dest) {
         var classList = [];
 
+
+
         if (source.className) {
             classList.push(source.className);
         }
@@ -637,6 +637,8 @@ var utils = module.exports = {
         if (extra) {
             classList.push(extra);
         }
+
+        console.log(classList.join(" "), source.tagName);
 
         dest.className = classList.join(" ");
     },
@@ -752,5 +754,5 @@ var utils = module.exports = {
     }
 };
 
-},{}]},{},[2,3,4,5,6,7,8,9,11,10,12,13,14])
+},{}]},{},[2,3,4,5,6,7,8,9,10,11,12,13])
 ;

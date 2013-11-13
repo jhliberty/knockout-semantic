@@ -12,7 +12,7 @@ describe("Dropdown", function () {
         // our first dropdown
         var $el, el;
 
-        $scope = $('<div><s-dropdown data="dropdown"></s-dropdown></div>');
+        $scope = $('<div><s-dropdown data="dropdown" class="foobar"></s-dropdown></div>');
 
         // TODO: spy on $.fn.dropdown
 
@@ -24,6 +24,10 @@ describe("Dropdown", function () {
 
         it("should become a div", function () {
             expect(el.tagName.toLowerCase()).toEqual("div");
+        });
+
+        it("should accept additional classes", function () {
+            expect(el.className).toContain("foobar");
         });
 
         it("should populate the menu", function () {
