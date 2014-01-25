@@ -93,10 +93,10 @@ in the project directory on gh-pages...
 1. make your change(s)
 1. **don't** change the version numbers
 1. commit each **related** change individually; be descriptive
-1. `git push origin gh-pages`
+1. `git push origin feature-something`
 1. send a pull request on github
 
-Feature changes may take a while to be accepted, because they require a minor-version
+Feature changes may take a while to be accepted after 1.0.0, because they require a minor-version
 update.
 
 ---
